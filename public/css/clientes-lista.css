@@ -1,0 +1,298 @@
+/* Estilos adicionales para la lista de clientes */
+
+/* Encabezado de página */
+.page-header {
+    background-color: var(--primary-color);
+    color: rgb(7, 7, 7);
+    padding: 1.5rem 2rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+.page-header h1 {
+    font-size: 1.8rem;
+    margin: 0.5rem 0;
+}
+
+.header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.search-box {
+    position: relative;
+    flex-grow: 1;
+    max-width: 400px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.95rem;
+}
+
+.search-box i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #110404;
+}
+
+/* Controles de clientes */
+.client-controls {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    align-items: center;
+}
+
+.filter-section {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.filter-section label {
+    font-weight: 500;
+    color: var(--secondary-color);
+    white-space: nowrap;
+}
+
+.filter-select {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.9rem;
+    background-color: rgb(255, 255, 255);
+}
+
+.stats-section {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    background-color: rgb(254, 250, 250);
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px var(--shadow-color);
+    text-align: center;
+    min-width: 100px;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    display: block;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: #777;
+}
+
+/* Tabla de clientes */
+.client-table-container {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    overflow-x: auto;
+}
+
+.client-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.client-table th {
+    background-color: var(--light-color);
+    color: var(--secondary-color);
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.client-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.client-table tr:last-child td {
+    border-bottom: none;
+}
+
+.client-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Estado del cliente */
+.client-status {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.status-active {
+    background-color: #e3f7eb;
+    color: var(--success-color);
+}
+
+.status-inactive {
+    background-color: #fde8e8;
+    color: var(--error-color);
+}
+
+.status-premium {
+    background-color: #e8f0fe;
+    color: var(--accent-color);
+}
+
+/* Acciones */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 4px;
+    background-color: transparent;
+    color: #666;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.action-btn:hover {
+    background-color: var(--light-color);
+    color: var(--accent-color);
+}
+
+.action-btn.edit {
+    color: var(--accent-color);
+}
+
+.action-btn.delete {
+    color: var(--error-color);
+}
+
+.action-btn.view {
+    color: var(--success-color);
+}
+
+/* Paginación */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1.5rem;
+    gap: 1rem;
+}
+
+.pagination-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background-color: var(--light-color);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#pageInfo {
+    font-size: 0.9rem;
+    color: var(--secondary-color);
+}
+
+/* Modal de eliminación */
+.modal-icon.warning {
+    color: var(--warning-color);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.btn-danger {
+    background-color: var(--error-color);
+    color: rgb(255, 0, 0);
+}
+
+.btn-danger:hover {
+    background-color: #c0392b;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .client-table th, 
+    .client-table td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.85rem;
+    }
+    
+    .header-actions {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .search-box {
+        max-width: 100%;
+        width: 100%;
+    }
+    
+    .filter-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .stats-section {
+        justify-content: space-between;
+        width: 100%;
+    }
+    
+    .stat-card {
+        flex-grow: 1;
+        min-width: auto;
+    }
+}
