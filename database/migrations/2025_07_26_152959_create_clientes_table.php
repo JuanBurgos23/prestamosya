@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('genero');
             $table->string('foto')->nullable();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('id_user_prestamista')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

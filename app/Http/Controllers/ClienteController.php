@@ -20,9 +20,9 @@ class ClienteController extends Controller
         return view('clientes.create');
     }
 
+  
     public function store(Request $request)
     {
-
         $request->validate([
             'nombre_completo' => 'required',
             'ci' => 'required|unique:clientes',
@@ -40,13 +40,18 @@ class ClienteController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        $idPrestamista = auth()->id();
+
+        // 👉 Asignar el rol de Cliente
+        $user->assignRole('Cliente'); // <- Esto asigna el rol usando Spatie
+
         // 2. Subir la foto
         $fotoPath = null;
         if ($request->hasFile('foto')) {
             $fotoPath = $request->file('foto')->store('clientes', 'public');
         }
 
-        // 3. Crear el cliente (ahora con todos los campos)
+        // 3. Crear el cliente
         Cliente::create([
             'user_id' => $user->id,
             'nombre_completo' => $request->nombre_completo,
@@ -65,11 +70,12 @@ class ClienteController extends Controller
             'estado_civil' => $request->estado_civil,
             'genero' => $request->genero,
             'foto' => $fotoPath,
+            'id_user_prestamista' => $idPrestamista
         ]);
 
         return redirect()->route('clientes.index')->with('success', 'Cliente creado correctamente');
-
     }
+
 
     public function edit(Cliente $cliente)
     {
@@ -98,4 +104,3 @@ class ClienteController extends Controller
         return redirect()->route('clientes.index')->with('success', 'Cliente eliminado');
     }
 }
-

@@ -376,10 +376,15 @@ return [
                 ],
             ],
         ],
-        ['header' => 'ADMIN'],
+        // Panel Prestamista (admin)
+        [
+            'header' => 'GESTIÓN',
+            'can' => 'prestamista',
+        ],
         [
             'text' => 'Clientes',
             'icon' => 'fas fa-fw fa-users',
+            'can'  => 'prestamista',
             'submenu' => [
                 [
                     'text' => 'Registrar Cliente',
@@ -391,8 +396,57 @@ return [
                     'url'  => 'clientes',
                     'icon' => 'fas fa-list',
                 ],
-                // Puedes agregar más subniveles si deseas
             ],
+        ],
+        [
+            'text' => 'Préstamos',
+            'url'  => 'prestamos',
+            'icon' => 'fas fa-hand-holding-usd',
+            'can'  => 'prestamista',
+            'submenu' => [
+                [
+                    'text' => 'Registrar Prestamo',
+                    'url'  => 'prestamos/create',
+                    'icon' => 'fas fa-user-plus',
+                ],
+
+            ],
+        ],
+        [
+            'text' => 'Pagos',
+            'url'  => 'pagos',
+            'icon' => 'fas fa-money-bill-wave',
+            'can'  => 'prestamista',
+        ],
+         [
+            'text' => 'Solicitudes',
+            'url'  => '/solicitudes/pendientes',
+            'icon' => 'fas fa-money-bill-wave',
+            'can'  => 'prestamista',
+        ],
+
+        // Panel Cliente (limitado)
+        [
+            'header' => 'MI CUENTA',
+            'can' => 'cliente',
+        ],
+        [
+            'text' => 'Solicitar Prestamo',
+            'url'  => 'solicitudes/crear',
+            'icon' => 'fas fa-file-invoice-dollar',
+            'can' => 'cliente',
+        ],
+        [
+            'text' => 'Mis Préstamos',
+            'url'  => 'mis-prestamos',
+            'icon' => 'fas fa-file-invoice-dollar',
+            'can' => 'cliente',
+        ],
+        [
+            'text' => 'Mi Perfil',
+            'url'  => 'perfil',
+            'icon' => 'fas fa-user',
+            'can' => 'cliente',
         ],
     ],
 

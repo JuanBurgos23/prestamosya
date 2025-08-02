@@ -24,6 +24,7 @@ class Cliente extends Model
         'estado_civil',
         'genero',
         'foto',
+        'id_user_prestamista'
     ];
 
     public function user()
