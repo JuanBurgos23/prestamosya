@@ -78,6 +78,10 @@
                                 @method('DELETE')
                                 <button class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar cliente?')">Eliminar</button>
                             </form>
+                            <a href="{{ route('prestamos.create', ['cliente_id' => $cliente->id]) }}"
+                                class="btn btn-sm btn-success" title="Registrar préstamo">
+                                 <i class="fas fa-money-check-alt"></i> Préstamo
+                             </a>
                         </td>
                     </tr>
                 @endforeach

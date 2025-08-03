@@ -55,4 +55,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(SolicitudPrestamo::class, 'id_prestamista');
     }
+    public function cliente()
+    {
+        return $this->hasOne(Cliente::class, 'user_id');
+        // Asegúrate que 'user_id' coincida con el campo en la tabla clientes
+    }
 }

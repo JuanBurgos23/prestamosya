@@ -398,15 +398,20 @@ return [
                 ],
             ],
         ],
+
         [
             'text' => 'Préstamos',
-            'url'  => 'prestamos',
             'icon' => 'fas fa-hand-holding-usd',
             'can'  => 'prestamista',
             'submenu' => [
                 [
                     'text' => 'Registrar Prestamo',
                     'url'  => 'prestamos/create',
+                    'icon' => 'fas fa-user-plus',
+                ],
+                [
+                    'text' => 'Listado de Préstamos',
+                    'url'  => 'prestamos',
                     'icon' => 'fas fa-user-plus',
                 ],
 

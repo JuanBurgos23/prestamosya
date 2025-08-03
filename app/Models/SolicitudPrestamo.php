@@ -12,6 +12,7 @@ class SolicitudPrestamo extends Model
     protected $table = 'solicitud_prestamo';
 
     protected $fillable = [
+        'id',
         'id_cliente',
         'id_prestamista',
         'monto_solicitado',

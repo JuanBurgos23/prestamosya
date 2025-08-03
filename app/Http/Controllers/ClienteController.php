@@ -20,7 +20,7 @@ class ClienteController extends Controller
         return view('clientes.create');
     }
 
-  
+
     public function store(Request $request)
     {
         $request->validate([
@@ -33,7 +33,6 @@ class ClienteController extends Controller
             'referencia_telefono' => 'required',
         ]);
 
-        // 1. Crear el usuario
         $user = User::create([
             'name' => $request->nombre_completo,
             'email' => $request->email,
@@ -42,8 +41,7 @@ class ClienteController extends Controller
 
         $idPrestamista = auth()->id();
 
-        // 👉 Asignar el rol de Cliente
-        $user->assignRole('Cliente'); // <- Esto asigna el rol usando Spatie
+        $user->assignRole('Cliente');
 
         // 2. Subir la foto
         $fotoPath = null;
@@ -52,7 +50,8 @@ class ClienteController extends Controller
         }
 
         // 3. Crear el cliente
-        Cliente::create([
+        // 3. Crear el cliente
+        $cliente = Cliente::create([
             'user_id' => $user->id,
             'nombre_completo' => $request->nombre_completo,
             'ci' => $request->ci,
@@ -72,8 +71,7 @@ class ClienteController extends Controller
             'foto' => $fotoPath,
             'id_user_prestamista' => $idPrestamista
         ]);
-
-        return redirect()->route('clientes.index')->with('success', 'Cliente creado correctamente');
+        return redirect()->route('prestamos.create', ['cliente_id' => $cliente->id]);
     }
 
 

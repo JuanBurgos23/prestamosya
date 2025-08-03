@@ -11,7 +11,8 @@ class SolicitudPrestamoController extends Controller
 {
     public function create()
     {
-        return view('solicitudes.solicitudPrestamo');
+        $cliente = Cliente::where('user_id', auth()->id())->firstOrFail();
+        return view('solicitudes.solicitudPrestamo', compact('cliente'));
     }
 
     // Registrar solicitud de préstamo
@@ -41,17 +42,85 @@ class SolicitudPrestamoController extends Controller
 
         return redirect()->route('solicitudes.create')->with('success', 'Solicitud enviada correctamente.');
     }
+
+    public function aprobar($id)
+    {
+        $solicitud = SolicitudPrestamo::findOrFail($id);
+
+        if ($solicitud->estado !== 'pendiente') {
+            return back()->with('error', 'La solicitud ya fue procesada.');
+        }
+
+        $solicitud->estado = 'aprobado';
+        $solicitud->save();
+
+        // Redirigir a la vista de crear préstamo, pasando el cliente como parámetro
+        return redirect()->route('prestamos.create', ['cliente_id' => $solicitud->id_cliente, 'solicitud_id' => $solicitud->id]);
+    }
+
+
+    public function show($id)
+    {
+        $solicitud = SolicitudPrestamo::with('cliente.user', 'prestamista')->findOrFail($id);
+        return view('prestamos.detalleSolicitud', compact('solicitud'));
+    }
+
+
+    public function index(Request $request)
+    {
+        $query = SolicitudPrestamo::with(['cliente', 'prestamista'])
+            ->where('id_prestamista', auth()->id())
+            ->latest();
+
+        // Aplicar filtros
+        if ($request->estado) {
+            $query->where('estado', $request->estado);
+        }
+
+        if ($request->fecha_desde) {
+            $query->whereDate('created_at', '>=', $request->fecha_desde);
+        }
+
+        if ($request->fecha_hasta) {
+            $query->whereDate('created_at', '<=', $request->fecha_hasta);
+        }
+
+        // Obtener los resultados paginados
+        $solicitudes = $query->paginate(10);
+
+        // Calcular estadísticas sobre el conjunto completo (sin paginación)
+        $statsQuery = clone $query;
+        $totalSolicitudes = $statsQuery->count();
+        $solicitudesPendientes = $statsQuery->where('estado', 'pendiente')->count();
+        $montoTotalSolicitado = $statsQuery->sum('monto_solicitado');
+
+        return view('prestamos.solicitudPendiente', compact(
+            'solicitudes',
+            'totalSolicitudes',
+            'solicitudesPendientes',
+            'montoTotalSolicitado'
+        ));
+    }
     public function pendientes()
     {
         $prestamista = Auth::user();
 
-        // Obtener todas las solicitudes con estado 'pendiente' que pertenecen al prestamista actual
-        $solicitudes = SolicitudPrestamo::with('cliente.user') // cliente -> usuario (relación para mostrar el nombre/email)
+        $solicitudes = SolicitudPrestamo::with('cliente.user')
             ->where('id_prestamista', $prestamista->id)
             ->where('estado', 'pendiente')
             ->latest()
-            ->get();
+            ->paginate(10); // usa paginación para compatibilidad con la vista
 
-        return view('prestamos.solicitudPendiente', compact('solicitudes'));
+        // variables faltantes
+        $totalSolicitudes = $solicitudes->total();
+        $solicitudesPendientes = $solicitudes->total(); // ya son todas pendientes
+        $montoTotalSolicitado = $solicitudes->sum('monto_solicitado');
+
+        return view('prestamos.solicitudPendiente', compact(
+            'solicitudes',
+            'totalSolicitudes',
+            'solicitudesPendientes',
+            'montoTotalSolicitado'
+        ));
     }
 }
