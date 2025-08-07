@@ -3,128 +3,142 @@
 @section('title', 'Registrar Préstamo')
 
 @section('content_header')
-    <h1 class="font-weight-bold text-primary">
-        <i class="fas fa-hand-holding-usd mr-2"></i>
-        Registrar Préstamo
-        @if($cliente)
-            <span class="text-muted">para {{ $cliente->nombre_completo }}</span>
-        @endif
-    </h1>
+<h1 class="font-weight-bold text-primary">
+    <i class="fas fa-hand-holding-usd mr-2"></i>
+    Registrar Préstamo
+    @if($cliente)
+    <span class="text-muted">para {{ $cliente->nombre_completo }}</span>
+    @endif
+</h1>
 @endsection
 
 @section('css')
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
-    <style>
-        .card-header-custom {
-            border-bottom: 2px solid rgba(0,0,0,.1);
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-        .info-box-custom {
-            box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
-            border-radius: 0.375rem;
-            background-color: #fff;
-            display: flex;
-            margin-bottom: 1rem;
-            min-height: 80px;
-            padding: 0.5rem;
-            position: relative;
-            width: 100%;
-        }
-        .info-box-icon-custom {
-            align-items: center;
-            display: flex;
-            font-size: 1.875rem;
-            justify-content: center;
-            text-align: center;
-            width: 70px;
-            color: #6c757d;
-        }
-        .info-box-content-custom {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            line-height: 1.4;
-            padding: 0 10px;
-            width: calc(100% - 70px);
-        }
-        .info-box-text-custom {
-            display: block;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            font-size: 0.875rem;
-            color: #6c757d;
-        }
-        .info-box-number-custom {
-            display: block;
-            font-weight: 600;
-            font-size: 1.125rem;
-            color: #343a40;
-        }
-        .form-control-custom {
-            border-radius: 0.375rem;
-            border: 1px solid #ced4da;
-            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-        }
-        .form-control-custom:focus {
-            border-color: #80bdff;
-            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
-        }
-        .btn-submit {
-            background: linear-gradient(135deg, #2ecc71, #27ae60);
-            border: none;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            padding: 10px 25px;
-            transition: all 0.3s ease;
-        }
-        .btn-submit:hover {
-            background: linear-gradient(135deg, #27ae60, #219653);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        .section-title {
-            position: relative;
-            padding-left: 15px;
-            margin-bottom: 20px;
-        }
-        .section-title:before {
-            content: "";
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 4px;
-            background: linear-gradient(to bottom, #3498db, #2c3e50);
-            border-radius: 4px;
-        }
-        .client-detail-item {
-            margin-bottom: 8px;
-            padding-bottom: 8px;
-            border-bottom: 1px dashed #eee;
-        }
-        .client-detail-label {
-            font-weight: 600;
-            color: #7f8c8d;
-            font-size: 0.85rem;
-        }
-        .client-detail-value {
-            color: #2c3e50;
-            font-size: 0.95rem;
-        }
-    </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+<style>
+    .card-header-custom {
+        border-bottom: 2px solid rgba(0, 0, 0, .1);
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .info-box-custom {
+        box-shadow: 0 0 1px rgba(0, 0, 0, .125), 0 1px 3px rgba(0, 0, 0, .2);
+        border-radius: 0.375rem;
+        background-color: #fff;
+        display: flex;
+        margin-bottom: 1rem;
+        min-height: 80px;
+        padding: 0.5rem;
+        position: relative;
+        width: 100%;
+    }
+
+    .info-box-icon-custom {
+        align-items: center;
+        display: flex;
+        font-size: 1.875rem;
+        justify-content: center;
+        text-align: center;
+        width: 70px;
+        color: #6c757d;
+    }
+
+    .info-box-content-custom {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        line-height: 1.4;
+        padding: 0 10px;
+        width: calc(100% - 70px);
+    }
+
+    .info-box-text-custom {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+
+    .info-box-number-custom {
+        display: block;
+        font-weight: 600;
+        font-size: 1.125rem;
+        color: #343a40;
+    }
+
+    .form-control-custom {
+        border-radius: 0.375rem;
+        border: 1px solid #ced4da;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    .form-control-custom:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #2ecc71, #27ae60);
+        border: none;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        padding: 10px 25px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-submit:hover {
+        background: linear-gradient(135deg, #27ae60, #219653);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .section-title {
+        position: relative;
+        padding-left: 15px;
+        margin-bottom: 20px;
+    }
+
+    .section-title:before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 4px;
+        background: linear-gradient(to bottom, #3498db, #2c3e50);
+        border-radius: 4px;
+    }
+
+    .client-detail-item {
+        margin-bottom: 8px;
+        padding-bottom: 8px;
+        border-bottom: 1px dashed #eee;
+    }
+
+    .client-detail-label {
+        font-weight: 600;
+        color: #7f8c8d;
+        font-size: 0.85rem;
+    }
+
+    .client-detail-value {
+        color: #2c3e50;
+        font-size: 0.95rem;
+    }
+</style>
 @endsection
 
 @section('content')
 @if ($errors->any())
-    <div class="alert alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
+<div class="alert alert-danger">
+    <ul>
+        @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
 @endif
 <div class="container-fluid">
     <div class="row">
@@ -167,7 +181,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="row mt-3">
                                 <div class="col-md-6">
                                     <div class="card border-0 shadow-none">
@@ -267,7 +281,62 @@
                         </div>
                         <input type="hidden" name="id_solicitud" value="{{ $solicitud->id }}">
                         @endif
+                        {{-- === SECCIÓN DOCUMENTOS ADJUNTOS === --}}
+                        @php
+                        // Mapeo para mostrar nombre bonito según tu ID (ajústalo si cambia)
+                        $tiposDoc = [
+                        1 => 'Documento de Identidad',
+                        2 => 'Comprobante de Ingresos',
+                        3 => 'Comprobante de Domicilio',
+                        4 => 'Otros Documentos'
+                        ];
+                        @endphp
 
+                        @if($solicitud && $solicitud->detallesDocumentos && count($solicitud->detallesDocumentos))
+                        <div class="mb-4">
+                            <h4 class="section-title">Documentos Adjuntos</h4>
+                            <div class="row">
+                                @foreach($solicitud->detallesDocumentos as $doc)
+                                <div class="col-md-3 col-6 mb-3">
+                                    <div class="card shadow-sm border-0 text-center h-100" style="min-height:140px;">
+                                        <div class="card-body p-2 d-flex flex-column align-items-center justify-content-center">
+                                            <div class="mb-2">
+                                                @php
+                                                $ext = strtolower(pathinfo($doc->ruta, PATHINFO_EXTENSION));
+                                                @endphp
+                                                @if(in_array($ext, ['jpg','jpeg','png']))
+                                                <a href="{{ asset('storage/' . $doc->ruta) }}" target="_blank">
+                                                    <img src="{{ asset('storage/' . $doc->ruta) }}" alt="{{ $tiposDoc[$doc->id_documento] ?? 'Documento' }}"
+                                                        style="width:48px; height:48px; object-fit:cover; border-radius:8px; border:1px solid #ddd;">
+                                                </a>
+                                                @elseif($ext == 'pdf')
+                                                <a href="{{ asset('storage/' . $doc->ruta) }}" target="_blank">
+                                                    <i class="far fa-file-pdf fa-3x text-danger"></i>
+                                                </a>
+                                                @else
+                                                <a href="{{ asset('storage/' . $doc->ruta) }}" target="_blank">
+                                                    <i class="far fa-file-alt fa-3x text-secondary"></i>
+                                                </a>
+                                                @endif
+                                            </div>
+                                            <div style="font-size:0.95rem; font-weight:500;" class="text-dark mb-1">
+                                                {{ $tiposDoc[$doc->id_documento] ?? 'Documento' }}
+                                            </div>
+                                            @if($doc->id_documento == 4)
+                                            <div style="font-size:0.80rem;">{{ basename($doc->ruta) }}</div>
+                                            @endif
+                                            <div>
+                                                <a href="{{ asset('storage/' . $doc->ruta) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i> Ver
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
                         {{-- === SECCIÓN CAMPOS DEL PRÉSTAMO A REGISTRAR === --}}
                         <div class="mb-4">
                             <h4 class="section-title">Detalles del Préstamo</h4>
@@ -315,8 +384,8 @@
                                     <div class="form-group">
                                         <label class="font-weight-bold">Fecha de Inicio</label>
                                         <div class="input-group date" id="fechaInicio" data-target-input="nearest">
-                                            <input type="text" name="fecha_inicio" class="form-control form-control-custom datetimepicker-input" 
-                                                data-target="#fechaInicio" required id="fechaInicioInput"/>
+                                            <input type="text" name="fecha_inicio" class="form-control form-control-custom datetimepicker-input"
+                                                data-target="#fechaInicio" required id="fechaInicioInput" />
                                             <div class="input-group-append" data-target="#fechaInicio" data-toggle="datetimepicker">
                                                 <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                             </div>
@@ -326,8 +395,8 @@
                                     <div class="form-group">
                                         <label class="font-weight-bold">Fecha de Vencimiento</label>
                                         <div class="input-group date" id="fechaVencimiento" data-target-input="nearest">
-                                            <input type="text" name="fecha_vencimiento" class="form-control form-control-custom datetimepicker-input" 
-                                                data-target="#fechaVencimiento" required id="fechaVencimientoInput" readonly/>
+                                            <input type="text" name="fecha_vencimiento" class="form-control form-control-custom datetimepicker-input"
+                                                data-target="#fechaVencimiento" required id="fechaVencimientoInput" readonly />
                                             <div class="input-group-append" data-target="#fechaVencimiento" data-toggle="datetimepicker">
                                                 <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                             </div>
@@ -389,9 +458,9 @@
 
 <script>
     $(document).ready(function() {
-        // Inicializar datepicker
+        // Inicializar datepicker con formato amigable para el usuario
         $('#fechaInicio').datepicker({
-            format: 'yyyy-mm-dd',
+            format: 'dd/mm/yyyy',
             language: 'es',
             autoclose: true,
             todayHighlight: true,
@@ -399,12 +468,12 @@
         });
 
         $('#fechaVencimiento').datepicker({
-            format: 'yyyy-mm-dd',
+            format: 'dd/mm/yyyy',
             language: 'es',
             autoclose: true
         });
 
-        // Calcular fecha de vencimiento cuando cambia plazo o fecha de inicio
+        // Evento para recalcular fecha de vencimiento
         $('#plazo, #tipoPlazo, #fechaInicioInput').on('change keyup', function() {
             calcularVencimiento();
             calcularResumen();
@@ -420,14 +489,15 @@
             const plazo = parseInt($('#plazo').val()) || 0;
             const tipoPlazo = $('#tipoPlazo').val();
             const fechaInicio = $('#fechaInicioInput').val();
-            
+
             if (fechaInicio && plazo > 0) {
-                const dateParts = fechaInicio.split('/');
+                // Convertir fecha de texto a objeto Date
+                const dateParts = fechaInicio.split('/'); // dd/mm/yyyy
                 const startDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
-                
+
                 let endDate = new Date(startDate);
-                
-                switch(tipoPlazo) {
+
+                switch (tipoPlazo) {
                     case 'diario':
                         endDate.setDate(startDate.getDate() + plazo);
                         break;
@@ -438,27 +508,42 @@
                         endDate.setMonth(startDate.getMonth() + plazo);
                         break;
                 }
-                
+
                 const dd = String(endDate.getDate()).padStart(2, '0');
                 const mm = String(endDate.getMonth() + 1).padStart(2, '0');
                 const yyyy = endDate.getFullYear();
-                
+
                 $('#fechaVencimientoInput').val(`${dd}/${mm}/${yyyy}`);
             }
         }
+
+        // Función para convertir fecha a formato MySQL
+        function convertirFechaAFormatoMySQL(fecha) {
+            const partes = fecha.split('/'); // dd/mm/yyyy
+            return `${partes[2]}-${partes[1]}-${partes[0]}`;
+        }
+
+        // Antes de enviar el formulario, convertir fechas a formato MySQL
+        $('form').on('submit', function() {
+            let fechaInicio = $('#fechaInicioInput').val();
+            let fechaVencimiento = $('#fechaVencimientoInput').val();
+
+            $('#fechaInicioInput').val(convertirFechaAFormatoMySQL(fechaInicio));
+            $('#fechaVencimientoInput').val(convertirFechaAFormatoMySQL(fechaVencimiento));
+        });
 
         // Función para calcular resumen del préstamo
         function calcularResumen() {
             const monto = parseFloat($('#montoAprobado').val()) || 0;
             const interes = parseFloat($('#tasaInteres').val()) || 0;
             const plazo = parseInt($('#plazo').val()) || 0;
-            
+
             if (monto > 0 && interes > 0 && plazo > 0) {
                 const interesDecimal = interes / 100;
                 const interesTotal = monto * interesDecimal;
                 const montoTotal = monto + interesTotal;
                 const cuotaEstimada = montoTotal / plazo;
-                
+
                 $('#interesTotal').text(interesTotal.toFixed(2) + ' Bs.');
                 $('#montoTotal').text(montoTotal.toFixed(2) + ' Bs.');
                 $('#cuotaEstimada').text(cuotaEstimada.toFixed(2) + ' Bs.');
@@ -479,7 +564,7 @@
         // Validación del formulario
         $('#prestamoForm').on('submit', function(e) {
             let isValid = true;
-            
+
             // Validar campos requeridos
             $('[required]').each(function() {
                 if (!$(this).val()) {
@@ -489,7 +574,7 @@
                     $(this).removeClass('is-invalid');
                 }
             });
-            
+
             if (!isValid) {
                 e.preventDefault();
                 Swal.fire({

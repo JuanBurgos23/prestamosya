@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cliente;
+use App\Models\DetalleDocumento;
+use App\Models\Documento;
 use App\Models\SolicitudPrestamo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,15 +14,21 @@ class SolicitudPrestamoController extends Controller
     public function create()
     {
         $cliente = Cliente::where('user_id', auth()->id())->firstOrFail();
-        return view('solicitudes.solicitudPrestamo', compact('cliente'));
+        $documentos = Documento::all()->keyBy('id');
+        return view('solicitudes.solicitudPrestamo', compact('cliente', 'documentos'));
     }
 
     // Registrar solicitud de préstamo
     public function store(Request $request)
     {
+        // Validación de los datos
         $request->validate([
             'monto_solicitado' => 'required|numeric|min:0.01',
             'comentario' => 'nullable|string|max:255',
+            'documento_identidad' => 'required|file|mimes:pdf,jpg,jpeg,png',
+            'comprobante_ingresos' => 'required|file|mimes:pdf,jpg,jpeg,png',
+            'comprobante_domicilio' => 'required|file|mimes:pdf,jpg,jpeg,png',
+            'otros_documentos.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png',
         ]);
 
         $user = Auth::user();
@@ -32,13 +40,62 @@ class SolicitudPrestamoController extends Controller
             return back()->with('error', 'No tienes un prestamista asignado.');
         }
 
-        SolicitudPrestamo::create([
+        // Crear la solicitud de préstamo
+        $solicitud = SolicitudPrestamo::create([
             'id_cliente' => $cliente->id,
-            'id_prestamista' => $cliente->id_user_prestamista, // ← correcto aquí
+            'id_prestamista' => $cliente->id_user_prestamista,
             'monto_solicitado' => $request->monto_solicitado,
-            'comentario' => $request->comentario,
+            'destino_prestamo' => $request->destino_prestamo,
+            'tipo_prestamo' => $request->tipo_prestamo,
+            'tipo_plazo' => $request->tipo_plazo,
+            'cantidad_plazo' => $request->cantidad_plazo,
             'estado' => 'pendiente',
         ]);
+
+        // Asociar documentos obligatorios excepto 'otros_documentos'
+        $documentos = [
+            1 => 'documento_identidad',     // Documento de identidad
+            2 => 'comprobante_ingresos',    // Comprobante de ingresos
+            3 => 'comprobante_domicilio',   // Comprobante de domicilio
+        ];
+
+        foreach ($documentos as $idDocumento => $inputName) {
+            if ($request->hasFile($inputName)) {
+                $file = $request->file($inputName);
+                $path = $file->store('documentos', 'public');
+
+                DetalleDocumento::create([
+                    'id_documento' => $idDocumento,
+                    'id_solicitud_prestamo' => $solicitud->id,
+                    'ruta' => $path,
+                ]);
+            }
+        }
+
+        // Asociar otros documentos (opcionales), manejando uno o varios archivos
+        $otrosDocumentos = $request->file('otros_documentos');
+
+        if ($otrosDocumentos) {
+            if (is_array($otrosDocumentos)) {
+                foreach ($otrosDocumentos as $file) {
+                    $path = $file->store('documentos', 'public');
+
+                    DetalleDocumento::create([
+                        'id_documento' => 4, // ID para "Otros documentos"
+                        'id_solicitud_prestamo' => $solicitud->id,
+                        'ruta' => $path,
+                    ]);
+                }
+            } else {
+                $path = $otrosDocumentos->store('documentos', 'public');
+
+                DetalleDocumento::create([
+                    'id_documento' => 4,
+                    'id_solicitud_prestamo' => $solicitud->id,
+                    'ruta' => $path,
+                ]);
+            }
+        }
 
         return redirect()->route('solicitudes.create')->with('success', 'Solicitud enviada correctamente.');
     }

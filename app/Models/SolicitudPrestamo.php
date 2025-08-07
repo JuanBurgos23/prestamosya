@@ -16,7 +16,10 @@ class SolicitudPrestamo extends Model
         'id_cliente',
         'id_prestamista',
         'monto_solicitado',
-        'comentario',
+        'destino_prestamo',
+        'tipo_prestamo',
+        'tipo_plazo',
+        'cantidad_plazo',
         'estado',
     ];
 
@@ -29,5 +32,9 @@ class SolicitudPrestamo extends Model
     public function prestamista()
     {
         return $this->belongsTo(User::class, 'id_prestamista');
+    }
+    public function detallesDocumentos()
+    {
+        return $this->hasMany(DetalleDocumento::class, 'id_solicitud_prestamo');
     }
 }

@@ -225,7 +225,7 @@
                     </h3>
                     <div class="form-group">
                         <label class="required-field">Email</label>
-                        <input type="email" name="email" required>
+                        <input type="email" name="email" required autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label class="required-field">Teléfono</label>
@@ -237,7 +237,7 @@
                     </div>
                     <div class="form-group">
                         <label class="required-field">Contraseña</label>
-                        <input type="password" name="password" required>
+                        <input type="password" name="password" required autocomplete="off">
                     </div>
                 </div>
 
@@ -252,7 +252,7 @@
                         <input type="text" name="ocupacion">
                     </div>
                     <div class="form-group">
-                        <label>Egresos Mensuales (Bs.)</label>
+                        <label>Ingresos Mensuales (Bs.)</label>
                         <input type="number" step="0.01" name="egresos_mensuales">
                     </div>
                     <div class="form-group">

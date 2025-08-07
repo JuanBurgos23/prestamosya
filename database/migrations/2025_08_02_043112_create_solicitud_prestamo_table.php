@@ -16,9 +16,11 @@ return new class extends Migration
             $table->unsignedBigInteger('id_cliente'); // cliente que solicita
             $table->unsignedBigInteger('id_prestamista'); // su prestamista asignado
             $table->float('monto_solicitado');
-            $table->text('comentario')->nullable(); // opcional
+            $table->text('destino_prestamo')->nullable(); // opcional
+            $table->string('tipo_prestamo')->nullable();
+            $table->string('tipo_plazo')->nullable();
+            $table->integer('cantidad_plazo')->nullable();
             $table->string('estado')->default('pendiente');
-
             $table->foreign('id_cliente')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('id_prestamista')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();

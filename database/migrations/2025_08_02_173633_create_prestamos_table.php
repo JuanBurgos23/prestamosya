@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_cliente')->constrained('clientes')->onDelete('cascade');
             $table->foreignId('id_prestamista')->constrained('users')->onDelete('cascade');
-            $table->foreignId('id_solicitud')->nullable()->constrained('solicitud_prestamo')->onDelete('set null');
+            $table->foreignId('id_solicitud')->nullable()->constrained('solicitud_prestamo')->onDelete('cascade');
+            $table->foreignId('id_documento')->constrained('documento')->onDelete('cascade')->nullable();
             $table->decimal('monto_aprobado', 10, 2);
             $table->decimal('interes', 5, 2);
             $table->integer('plazo');

@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('metodo_pago', 50);
             $table->string('comprobante')->nullable();
             $table->text('comentario')->nullable();
-            $table->foreignId('id_prestamista')->constrained('users');
+            $table->foreignId('id_clienteUser')->constrained('users');
             $table->timestamps();
         });
     }
