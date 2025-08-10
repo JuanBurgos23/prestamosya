@@ -396,8 +396,9 @@
                                     </div>
 
                                     <div class="loan-actions">
-                                        <button class="btn btn-loan-action btn-details" data-toggle="modal" data-target="#loanDetailsModal" 
-                                            data-loan="{{ json_encode($prestamo) }}">
+                                        <button type="button" 
+                                                class="btn btn-loan-action btn-details"
+                                                onclick="window.location='{{ route('prestamos.show', $prestamo->id) }}'">
                                             <i class="fas fa-eye mr-1"></i> Ver Detalles
                                         </button>
                                         <button class="btn btn-loan-action btn-secondary">

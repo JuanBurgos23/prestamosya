@@ -42,3 +42,5 @@ Route::get('/pagos/create/{prestamo_id}', [PagoController::class, 'create'])
     ->name('pagos.create');
 Route::post('/pagos', [PagoController::class, 'store'])
     ->name('pagos.store');
+
+Route::get('/prestamos/{id}', [PrestamoController::class, 'show'])->name('prestamos.show');

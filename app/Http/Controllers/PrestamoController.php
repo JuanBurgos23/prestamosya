@@ -195,14 +195,11 @@ class PrestamoController extends Controller
 
     public function show($id)
     {
-        $prestamo = Prestamo::with(['pagos', 'cliente'])->findOrFail($id);
+        $prestamo = Prestamo::with(['cliente', 'pagos', 'pagos.prestamista'])
+            ->where('id_prestamista', auth()->id())
+            ->findOrFail($id);
 
-        // Verificar que el préstamo pertenece al cliente autenticado
-        if ($prestamo->id_cliente != auth()->user()->cliente->id) {
-            abort(403);
-        }
-
-        return response()->json($prestamo);
+        return view('prestamos.show', compact('prestamo'));
     }
 
 
