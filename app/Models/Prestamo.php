@@ -66,9 +66,7 @@ class Prestamo extends Model
 
     public function getProximoPagoAttribute()
     {
-        // Lógica para calcular la fecha del próximo pago
-        // Esto depende de tu sistema de amortización
-        // Ejemplo básico:
+
         if ($this->pagos()->count() == 0) {
             return $this->fecha_inicio;
         }
@@ -77,9 +75,6 @@ class Prestamo extends Model
 
     public function getMontoCuotaAttribute()
     {
-        // Lógica para calcular el monto de la cuota
-        // Esto depende de tu sistema de amortización
-        // Ejemplo básico:
         return $this->monto_aprobado * ($this->interes / 100 / 12) /
             (1 - pow(1 + ($this->interes / 100 / 12), -$this->plazo));
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cliente;
+use App\Models\Prestamo;
 use Illuminate\Http\Request;
 
 class PrestamosController extends Controller
@@ -11,6 +12,6 @@ class PrestamosController extends Controller
     {
         $clientes = Cliente::where('id_user_prestamista', auth()->id())->get();
 
-        return view('prestamos.prestamos',compact('clientes'));
+        return view('prestamos.prestamos', compact('clientes'));
     }
 }
