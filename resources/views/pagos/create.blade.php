@@ -23,49 +23,59 @@
         border: none;
         overflow: hidden;
     }
+
     .payment-header {
         background: linear-gradient(135deg, #2c3e50, #3498db);
         color: white;
         padding: 15px 20px;
         border-bottom: none;
     }
+
     .payment-body {
         padding: 25px;
         background-color: #fff;
     }
+
     .payment-summary-item {
         display: flex;
         justify-content: space-between;
         padding: 12px 0;
         border-bottom: 1px dashed #eee;
     }
+
     .payment-summary-label {
         font-weight: 500;
         color: #7f8c8d;
     }
+
     .payment-summary-value {
         font-weight: 600;
         color: #2c3e50;
     }
+
     .payment-summary-value.amount {
         color: #27ae60;
         font-size: 1.1rem;
     }
+
     .payment-form-label {
         font-weight: 500;
         color: #5a5a5a;
         margin-bottom: 8px;
     }
+
     .payment-form-control {
         border: 1px solid #d0d0d0;
         border-radius: 4px;
         padding: 10px 15px;
         transition: all 0.3s;
     }
+
     .payment-form-control:focus {
         border-color: #3498db;
         box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
     }
+
     .btn-payment-submit {
         background: linear-gradient(135deg, #2ecc71, #27ae60);
         border: none;
@@ -76,11 +86,13 @@
         border-radius: 4px;
         transition: all 0.3s;
     }
+
     .btn-payment-submit:hover {
         background: linear-gradient(135deg, #27ae60, #219653);
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
+
     .file-upload-container {
         border: 2px dashed #d0d0d0;
         border-radius: 8px;
@@ -89,15 +101,18 @@
         cursor: pointer;
         transition: all 0.3s;
     }
+
     .file-upload-container:hover {
         border-color: #3498db;
         background-color: #f8faff;
     }
+
     .file-name {
         margin-top: 10px;
         font-size: 0.85rem;
         color: #3498db;
     }
+
     @media (max-width: 768px) {
         .payment-body {
             padding: 15px;
@@ -153,15 +168,12 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="payment-form-label">Monto del Pago (Bs.)</label>
-                                    <input type="number" class="payment-form-control" name="monto" 
-                                        
-                                       
-                                        >   
+                                    <input type="number" class="payment-form-control" name="monto" required>
                                 </div>
 
                                 <div class="form-group">
                                     <label class="payment-form-label">Fecha de Pago</label>
-                                    <input type="date" class="payment-form-control" name="fecha_pago" 
+                                    <input type="date" class="payment-form-control" name="fecha_pago"
                                         value="{{ now()->format('Y-m-d') }}" required>
                                 </div>
                             </div>
@@ -184,7 +196,7 @@
                                         <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i>
                                         <div>Haga clic para subir comprobante</div>
                                         <div class="file-name" id="fileName">No se ha seleccionado archivo</div>
-                                        <input type="file" id="comprobante" name="comprobante" 
+                                        <input type="file" id="comprobante" name="comprobante"
                                             accept=".pdf,.jpg,.jpeg,.png" style="display: none;"
                                             onchange="document.getElementById('fileName').textContent = this.files[0] ? this.files[0].name : 'No se ha seleccionado archivo'">
                                     </div>
@@ -201,20 +213,41 @@
                             <i class="fas fa-info-circle mr-2"></i>
                             Al realizar este pago, el saldo pendiente de su préstamo será actualizado automáticamente.
                         </div>
-
-                        <div class="text-right mt-4">
-                            <a href="{{ route('prestamos.mis-prestamos') }}" class="btn btn-secondary mr-2">
-                                <i class="fas fa-arrow-left mr-1"></i> Cancelar
-                            </a>
-                            <button type="submit" class="btn btn-payment-submit">
-                                <i class="fas fa-check-circle mr-1"></i> Registrar Pago
-                            </button>
+                        <div class="col-md-6">
+                            <!-- Sección QR -->
+                            <div class="qr-payment-section text-center p-4">
+                                @if($prestamo->prestamista->qr)
+                                <h6 class="mb-3">Pagar con QR</h6>
+                                <img src="{{ asset('storage/' . $prestamo->prestamista->qr) }}"
+                                    alt="QR para pagos"
+                                    class="img-fluid qr-image mb-2"
+                                    style="max-width: 180px;">
+                                <p class="text-muted small">
+                                    Escanee este código para pagar directamente<br>
+                                    al prestamista {{ $prestamo->prestamista->name }}
+                                </p>
+                                @else
+                                <div class="alert alert-warning small mb-0">
+                                    <i class="fas fa-exclamation-circle mr-2"></i>
+                                    QR de pago no disponible
+                                </div>
+                                @endif
+                            </div>
                         </div>
-                    </form>
                 </div>
+                <div class="text-right mt-4">
+                    <a href="{{ route('prestamos.mis-prestamos') }}" class="btn btn-secondary mr-2">
+                        <i class="fas fa-arrow-left mr-1"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-payment-submit">
+                        <i class="fas fa-check-circle mr-1"></i> Registrar Pago
+                    </button>
+                </div>
+                </form>
             </div>
         </div>
     </div>
+</div>
 </div>
 @endsection
 
@@ -223,9 +256,13 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Validación del monto
         document.getElementById('montoPago').addEventListener('change', function() {
-            const maxAmount = parseFloat({{ $prestamo->saldo_pendiente }});
+            const maxAmount = parseFloat({
+                {
+                    $prestamo - > saldo_pendiente
+                }
+            });
             const enteredAmount = parseFloat(this.value);
-            
+
             if (enteredAmount > maxAmount) {
                 alert('El monto ingresado no puede ser mayor al saldo pendiente: ' + maxAmount.toFixed(2) + ' Bs.');
                 this.value = maxAmount.toFixed(2);

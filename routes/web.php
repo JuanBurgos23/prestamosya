@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\PrestamoController;
 use App\Http\Controllers\PrestamosController;
 use App\Http\Controllers\SolicitudPrestamoController;
@@ -25,6 +26,9 @@ Route::get('/solicitudes/{id}', [SolicitudPrestamoController::class, 'show'])->n
 Route::post('/solicitudes/{id}/aprobar', [SolicitudPrestamoController::class, 'aprobar'])->name('solicitudes.aprobar');
 
 
+//actualizar perfil
+Route::get('/perfil', [PerfilController::class, 'index'])->name('perfil.index')->middleware('auth');
+Route::put('/perfil', [PerfilController::class, 'update'])->name('perfil.update')->middleware('auth');
 
 Route::get('mis-prestamos', [PrestamoController::class, 'misPrestamos'])
     ->middleware('auth')

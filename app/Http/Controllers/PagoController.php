@@ -58,7 +58,7 @@ class PagoController extends Controller
             'metodo_pago' => $request->metodo_pago,
             'comprobante' => $comprobantePath,
             'comentario' => $request->comentario,
-            'id_prestamista' => auth()->id(),
+            'id_clienteUser' => auth()->id(),
         ]);
 
         // Actualizar estado del préstamo si está completamente pagado

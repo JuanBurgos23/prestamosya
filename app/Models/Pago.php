@@ -16,7 +16,7 @@ class Pago extends Model
         'metodo_pago',
         'comprobante',
         'comentario',
-        'id_prestamista'
+        'id_clienteUser'
     ];
 
     public function prestamo()
