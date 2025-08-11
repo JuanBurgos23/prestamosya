@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Interes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -12,28 +13,34 @@ class PerfilController extends Controller
 {
     public function index()
     {
-        return view('perfil.perfil');
+        $interes = Interes::where('estado', 'activo')->first();
+        return view('perfil.perfil', compact('interes'));
     }
     public function update(Request $request)
     {
         $user = Auth::user();
+
         // Validación
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'phone' => 'nullable|string|max:20', // Asegúrate de que coincida con el name del input
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'phone'    => 'nullable|string|max:20',
             'password' => 'nullable|string|min:8|confirmed',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'qr' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+            'avatar'   => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'qr'       => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'interes'  => 'required|numeric|min:0'
         ]);
+
         // Actualizar datos básicos
-        $user->name = $request->name;
-        $user->email = $request->email;
+        $user->name     = $request->name;
+        $user->email    = $request->email;
         $user->telefono = $request->phone;
+
         // Contraseña
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
         }
+
         // Avatar
         if ($request->hasFile('avatar')) {
             if ($user->imagen && Storage::exists('public/' . $user->imagen)) {
@@ -41,6 +48,7 @@ class PerfilController extends Controller
             }
             $user->foto = $request->file('avatar')->store('usuarios/fotos', 'public');
         }
+
         // QR
         if ($request->hasFile('qr')) {
             if ($user->qr && Storage::exists('public/' . $user->qr)) {
@@ -48,6 +56,14 @@ class PerfilController extends Controller
             }
             $user->qr = $request->file('qr')->store('usuarios/qr', 'public');
         }
+
+        // Guardar interés (solo uno activo)
+        Interes::where('estado', 'activo')->update(['estado' => 'inactivo']);
+
+        Interes::create([
+            'tasa_interes'  => $request->interes,
+            'estado' => 'activo'
+        ]);
 
         $user->save();
 

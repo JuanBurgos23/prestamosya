@@ -558,23 +558,15 @@
                 }
             </style>
 
-            <form id="registerForm">
+            <form method="POST" action="{{ route('register') }}">
+                @csrf
                 <div class="row">
                     <div class="col">
                         <div class="form-group">
-                            <label for="firstName">Nombres</label>
+                            <label for="firstName">Nombre Completo</label>
                             <div class="input-group">
                                 <i class="fas fa-user"></i>
-                                <input type="text" id="firstName" placeholder="Juan" required>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="form-group">
-                            <label for="lastName">Apellidos</label>
-                            <div class="input-group">
-                                <i class="fas fa-user"></i>
-                                <input type="text" id="lastName" placeholder="Pérez" required>
+                                <input type="text" id="firstName" name="name" placeholder="Juan" required>
                             </div>
                         </div>
                     </div>
@@ -584,7 +576,7 @@
                     <label for="email">Correo Electrónico</label>
                     <div class="input-group">
                         <i class="fas fa-envelope"></i>
-                        <input type="email" id="email" placeholder="tu@email.com" required>
+                        <input type="email" id="email" name="email" placeholder="tu@email.com" required>
                     </div>
                 </div>
 
@@ -594,7 +586,7 @@
                             <label for="password">Contraseña</label>
                             <div class="input-group">
                                 <i class="fas fa-lock"></i>
-                                <input type="password" id="password" placeholder="••••••••" required>
+                                <input type="password" id="password" name="password" placeholder="••••••••" required>
                                 <span class="toggle-password" onclick="togglePassword('password')">
                                     <i class="fas fa-eye"></i>
                                 </span>
@@ -606,7 +598,7 @@
                             <label for="confirmPassword">Confirmar Contraseña</label>
                             <div class="input-group">
                                 <i class="fas fa-lock"></i>
-                                <input type="password" id="confirmPassword" placeholder="••••••••" required>
+                                <input type="password" id="confirmPassword" name="password_confirmation" placeholder="••••••••" required>
                                 <span class="toggle-password" onclick="togglePassword('confirmPassword')">
                                     <i class="fas fa-eye"></i>
                                 </span>
@@ -623,26 +615,6 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Tipo de Usuario</label>
-                    <div class="user-type-selector">
-                        <div class="user-type-option">
-                            <input type="radio" id="prestamista" name="userType" value="prestamista" checked>
-                            <label for="prestamista">
-                                <i class="fas fa-hand-holding-usd"></i>
-                                Prestamista
-                            </label>
-                        </div>
-                        <div class="user-type-option">
-                            <input type="radio" id="cliente" name="userType" value="cliente">
-                            <label for="cliente">
-                                <i class="fas fa-user-tie"></i>
-                                Cliente
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="terms-check">
                     <input type="checkbox" id="terms" required>
                     <label for="terms">Acepto los <a href="#" id="showTerms">Términos y Condiciones</a> y la <a href="#">Política de Privacidad</a></label>
@@ -654,7 +626,7 @@
             </form>
 
             <div class="login-link">
-                ¿Ya tiene una cuenta? <a href="#">Iniciar Sesión</a>
+                ¿Ya tiene una cuenta? <a href="{{ route('login') }}">Iniciar Sesión</a>
             </div>
         </div>
 
