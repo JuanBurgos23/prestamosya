@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cliente;
 use App\Models\DetalleDocumento;
 use App\Models\Documento;
+use App\Models\Interes;
 use App\Models\SolicitudPrestamo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +16,8 @@ class SolicitudPrestamoController extends Controller
     {
         $cliente = Cliente::where('user_id', auth()->id())->firstOrFail();
         $documentos = Documento::all()->keyBy('id');
-        return view('solicitudes.solicitudPrestamo', compact('cliente', 'documentos'));
+        $interes = Interes::where('estado', 'activo')->first();
+        return view('solicitudes.solicitudPrestamo', compact('cliente', 'documentos', 'interes'));
     }
 
     // Registrar solicitud de préstamo

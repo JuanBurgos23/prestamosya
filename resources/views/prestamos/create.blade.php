@@ -361,10 +361,12 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-percent"></i></span>
                                             </div>
-                                            <input type="number" name="interes" step="0.01" class="form-control form-control-custom" required id="tasaInteres">
+                                            <input type="number" name="interes" step="0.01" class="form-control form-control-custom" required id="tasaInteres"
+                                                value="{{ $interes->tasa_interes ?? old('interes') }}" readonly>
+
                                         </div>
                                     </div>
-
+                                    <input type="hidden" name="id_interes" value="{{ $interes->id ?? '' }}">
                                     <div class="form-group">
                                         <label class="font-weight-bold">Plazo</label>
                                         <div class="input-group">

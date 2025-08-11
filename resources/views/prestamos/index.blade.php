@@ -328,7 +328,7 @@
                                 </div>
                                 <div class="loan-summary-item">
                                     <div class="loan-summary-label">Tasa de Interés</div>
-                                    <div class="loan-summary-value">{{ $prestamo->interes }}%</div>
+                                    <div class="loan-summary-value">{{ $prestamo->interes->tasa_interes ?? 0 }}%</div>
                                 </div>
                                 <div class="loan-summary-item">
                                     <div class="loan-summary-label">Próximo Pago</div>
