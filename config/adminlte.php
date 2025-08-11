@@ -414,6 +414,11 @@ return [
                     'url'  => 'prestamos',
                     'icon' => 'fas fa-user-plus',
                 ],
+                 [
+                    'text' => 'Intereses',
+                    'url'  => 'intereses',
+                    'icon' => 'fas fa-user-plus',
+                ],
 
             ],
         ],

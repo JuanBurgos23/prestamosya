@@ -19,7 +19,7 @@ class PrestamoController extends Controller
     {
         $query = Prestamo::with(['cliente', 'pagos'])
             ->where('id_prestamista', auth()->id())
-            ->orderBy('fecha_vencimiento', 'asc');
+            ->orderBy('fecha_vencimiento', 'desc');
 
         // Filtros
         if ($request->estado) {
@@ -91,7 +91,7 @@ class PrestamoController extends Controller
 
         $clientes = Cliente::all();
 
-        return view('prestamos.create', compact('cliente', 'clientes', 'solicitud'));
+        return view('prestamos.create', compact('cliente', 'clientes', 'solicitud', 'interes'));
     }
 
 
@@ -109,11 +109,15 @@ class PrestamoController extends Controller
             'tipo_plazo' => 'required|string',
             'fecha_inicio' => 'required|date',
             'fecha_vencimiento' => 'required|date|after_or_equal:fecha_inicio',
+            'id_interes' => 'required|exists:interes,id', // valida que exista el interes
             // 'comentario' => 'nullable|string',
         ]);
 
         $prestamo = new Prestamo($validated);
         $prestamo->comentario = $request->comentario;
+
+        // Asignar la tasa/interés al préstamo si tienes columna para ello
+        $prestamo->id_interes = $request->id_interes;
 
         if ($request->has('id_solicitud')) {
             $solicitud = SolicitudPrestamo::findOrFail($request->id_solicitud);
@@ -126,8 +130,6 @@ class PrestamoController extends Controller
 
         return redirect()->route('prestamos.index')->with('success', 'Préstamo registrado correctamente');
     }
-
-
 
     public function misPrestamos()
     {

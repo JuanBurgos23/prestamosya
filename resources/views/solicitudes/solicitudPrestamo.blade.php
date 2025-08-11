@@ -359,9 +359,10 @@
                             <div class="form-group">
                                 <label class="form-label">Tipo de Plazo</label>
                                 <select class="form-control form-control-bank" name="tipo_plazo" required>
-                                    <option value="mensual" selected>Mensual</option>
-                                    <option value="quincenal">Quincenal</option>
+                                    <option value="diario">Diario</option>
                                     <option value="semanal">Semanal</option>
+                                    <option value="mensual" selected>Mensual</option>
+                                    <option value="anual">Anual</option>
                                 </select>
                             </div>
 
@@ -381,7 +382,7 @@
                         </div>
                         <div class="summary-item">
                             <span class="summary-label">Tasa de interés estimada:</span>
-                            <span class="summary-value" id="resumenInteres">12.5% anual</span>
+                            <span class="summary-value" id="resumenInteres"></span>
                         </div>
                         <div class="summary-item">
                             <span class="summary-label">Plazo:</span>
@@ -740,30 +741,51 @@
     // Función para actualizar el resumen del préstamo
     function actualizarResumen() {
         const monto = parseFloat($('#montoSolicitado').val()) || 0;
-        const plazo = $('#plazoValue').val();
+        const plazo = parseInt($('#plazoValue').val()) || 1;
         const tipoPlazo = $('[name="tipo_plazo"]').val();
 
-        // Calcular interés y cuotas (esto es solo un ejemplo)
-        let tasaInteres = 12.5; // Tasa de interés anual base
+        // Tasa de interés según el tipo de plazo (puedes ajustarlo según tu BD)
+        let tasaInteres = Number("{{ $interes->tasa_interes ?? 0 }}"); // 10 significa 10% por el plazo seleccionado
         if (monto > 50000) tasaInteres = 10.5;
         if (monto > 80000) tasaInteres = 9.0;
 
-        const interesMensual = tasaInteres / 12 / 100;
-        const cuota = monto * (interesMensual * Math.pow(1 + interesMensual, plazo)) /
-            (Math.pow(1 + interesMensual, plazo) - 1);
+        // Interés por cada cuota según tipo de plazo
+        const interesPorCuota = monto * (tasaInteres / 100);
+
+        // Cada cuota = capital por cuota + interés por cuota
+        const cuotaCapital = monto / plazo;
+        const cuota = cuotaCapital + interesPorCuota;
         const totalPagar = cuota * plazo;
 
-        // Actualizar la UI
-        $('#resumenMonto').text(monto.toLocaleString('es-ES', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }) + ' Bs.');
-        $('#resumenInteres').text(tasaInteres.toFixed(1) + '% anual');
-        $('#resumenPlazo').text(plazo + ' ' + (tipoPlazo === 'mensual' ? 'meses' : tipoPlazo === 'quincenal' ? 'quincenas' : 'semanas'));
-        $('#resumenCuota').text(isNaN(cuota) ? '0.00' : cuota.toFixed(2)) + ' Bs./' + (tipoPlazo === 'mensual' ? 'mes' : tipoPlazo === 'quincenal' ? 'quincena' : 'semana');
-        $('#resumenTotal').text(isNaN(totalPagar) ? '0.00' : totalPagar.toFixed(2)) + ' Bs.';
-    }
+        // Texto de la unidad
+        let unidad = '';
+        switch (tipoPlazo) {
+            case 'diario':
+                unidad = 'día';
+                break;
+            case 'semanal':
+                unidad = 'semana';
+                break;
+            case 'quincenal':
+                unidad = 'quincena';
+                break;
+            case 'mensual':
+                unidad = 'mes';
+                break;
+            case 'anual':
+                unidad = 'año';
+                break;
+        }
 
+        // Actualizar UI
+        $('#resumenMonto').text(monto.toLocaleString('es-ES', {
+            minimumFractionDigits: 2
+        }) + ' Bs.');
+        $('#resumenInteres').text(tasaInteres.toFixed(1) + ' % ' + unidad);
+        $('#resumenPlazo').text(plazo + ' ' + (unidad + (plazo > 1 ? 's' : '')));
+        $('#resumenCuota').text(cuota.toFixed(2) + ' Bs./' + unidad);
+        $('#resumenTotal').text(totalPagar.toFixed(2) + ' Bs.');
+    }
     // Función para sincronizar el rango y el valor numérico del plazo
     function updatePlazoValue(value) {
         $('#plazoValue').val(value);

@@ -11,8 +11,8 @@ class Prestamo extends Model
         'id_cliente',
         'id_prestamista',
         'id_solicitud',
+        'id_interes',
         'monto_aprobado',
-        'interes',
         'plazo',
         'tipo_plazo',
         'fecha_inicio',
@@ -75,7 +75,21 @@ class Prestamo extends Model
 
     public function getMontoCuotaAttribute()
     {
-        return $this->monto_aprobado * ($this->interes / 100 / 12) /
-            (1 - pow(1 + ($this->interes / 100 / 12), -$this->plazo));
+        // Obtener tasa de interes desde relación (verifica que exista)
+        $tasaInteres = $this->interes ? $this->interes->tasa_interes : 0;
+
+        // Validar para evitar división por cero
+        if ($tasaInteres <= 0 || $this->plazo <= 0) {
+            return 0; // O lo que tenga sentido si no hay interés o plazo
+        }
+
+        $interesMensual = $tasaInteres / 100 / 12;
+
+        return $this->monto_aprobado * $interesMensual /
+            (1 - pow(1 + $interesMensual, -$this->plazo));
+    }
+    public function interes()
+    {
+        return $this->belongsTo(Interes::class, 'id_interes');
     }
 }
