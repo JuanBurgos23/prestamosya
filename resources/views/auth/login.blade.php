@@ -446,12 +446,13 @@
                 }
             </style>
 
-            <form id="loginForm">
+            <form method="POST" action="{{ route('login') }}">
+                @csrf
                 <div class="form-group">
                     <label for="email">Correo Electrónico</label>
                     <div class="input-group">
                         <i class="fas fa-envelope"></i>
-                        <input type="email" id="email" placeholder="tu@email.com" required>
+                        <input type="email" id="email" name="email" placeholder="tu@email.com" required>
                     </div>
                 </div>
 
@@ -459,7 +460,7 @@
                     <label for="password">Contraseña</label>
                     <div class="input-group">
                         <i class="fas fa-lock"></i>
-                        <input type="password" id="password" placeholder="••••••••" required>
+                        <input type="password" id="password" name="password" placeholder="••••••••" required>
                         <span class="toggle-password" onclick="togglePassword()">
                             <i class="fas fa-eye"></i>
                         </span>
@@ -471,7 +472,7 @@
                         <input type="checkbox" id="remember">
                         <label for="remember">Recordar sesión</label>
                     </div>
-                    <a href="#" class="forgot-password">¿Olvidó su contraseña?</a>
+                    <a href="{{ route('password.request') }}" class="forgot-password">¿Olvidó su contraseña?</a>
                 </div>
 
                 <button type="submit" class="btn-login">
@@ -480,7 +481,7 @@
             </form>
 
             <div class="register-link">
-                ¿No tiene una cuenta? <a href="#">Regístrese aquí</a>
+                ¿No tiene una cuenta? <a href="{{ route('register') }}">Regístrese aquí</a>
             </div>
         </div>
 

@@ -8,6 +8,7 @@ use App\Models\Prestamo;
 use Illuminate\Http\Request;
 use App\Models\SolicitudPrestamo;
 use App\Http\Controllers\Controller;
+use App\Models\Interes;
 
 class PrestamoController extends Controller
 {
@@ -75,7 +76,7 @@ class PrestamoController extends Controller
 
         $cliente_id = $request->cliente_id;
         $solicitud_id = $request->solicitud_id;
-
+        $interes = Interes::where('estado', 'activo')->first();
         $cliente = null;
         $solicitud = null;
 
@@ -104,7 +105,6 @@ class PrestamoController extends Controller
             'id_cliente' => 'required|exists:clientes,id',
             'id_prestamista' => 'required|exists:users,id',
             'monto_aprobado' => 'required|numeric',
-            'interes' => 'required|numeric',
             'plazo' => 'required|integer',
             'tipo_plazo' => 'required|string',
             'fecha_inicio' => 'required|date',

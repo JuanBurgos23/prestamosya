@@ -26,6 +26,6 @@ class Pago extends Model
 
     public function prestamista()
     {
-        return $this->belongsTo(User::class, 'id_prestamista');
+        return $this->belongsTo(User::class, 'id_clienteUser');
     }
 }
