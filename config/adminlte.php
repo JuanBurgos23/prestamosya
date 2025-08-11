@@ -418,12 +418,19 @@ return [
             ],
         ],
         [
-            'text' => 'Pagos',
-            'url'  => 'pagos',
-            'icon' => 'fas fa-money-bill-wave',
+            'text' => 'Reportes',
+            'icon' => 'fas fa-hand-holding-usd',
             'can'  => 'prestamista',
+            'submenu' => [
+                [
+                    'text' => 'Cartera',
+                    'url'  => 'reportes/cartera',
+                    'icon' => 'fas fa-user-plus',
+                ],
+            ],
         ],
-         [
+        
+        [
             'text' => 'Solicitudes',
             'url'  => '/solicitudes/pendientes',
             'icon' => 'fas fa-money-bill-wave',

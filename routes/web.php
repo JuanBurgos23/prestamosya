@@ -2,9 +2,11 @@
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PagoController;
-use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\PerfilController;
+use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\PrestamoController;
 use App\Http\Controllers\PrestamosController;
 use App\Http\Controllers\SolicitudPrestamoController;
@@ -48,3 +50,5 @@ Route::post('/pagos', [PagoController::class, 'store'])
     ->name('pagos.store');
 
 Route::get('/prestamos/{id}', [PrestamoController::class, 'show'])->name('prestamos.show');
+Route::get('/dashboard-prestamista', [HomeController::class, 'indexPrestamista'])->name('prestamista.dashboard');
+Route::get('/reportes/cartera', [ReporteController::class, 'cartera'])->name('reportes.cartera');
