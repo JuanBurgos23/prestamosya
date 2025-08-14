@@ -17,13 +17,16 @@ return new class extends Migration
             $table->foreignId('id_prestamista')->constrained('users')->onDelete('cascade');
             $table->foreignId('id_interes')->constrained('interes')->onDelete('cascade');
             $table->foreignId('id_solicitud')->nullable()->constrained('solicitud_prestamo')->onDelete('cascade');
-            $table->foreignId('id_documento')->constrained('documento')->onDelete('cascade')->nullable();
+            //$table->foreignId('id_documento')->constrained('documento')->onDelete('cascade')->nullable();
             $table->decimal('monto_aprobado', 10, 2);
             $table->integer('plazo');
             $table->string('tipo_plazo');
             $table->date('fecha_inicio');
             $table->date('fecha_vencimiento');
             $table->string('estado')->default('activo');
+            $table->float('monto_total_pagar')->nullable();
+            $table->float('interes_total')->nullable();
+            $table->float('cuota_estimada')->nullable();
             $table->text('comentario')->nullable();
             $table->timestamps();
         });

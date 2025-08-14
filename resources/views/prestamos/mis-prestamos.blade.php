@@ -3,239 +3,279 @@
 @section('title', 'Mis Préstamos')
 
 @section('content_header')
-    <div class="d-flex justify-content-between align-items-center">
-        <h1 class="font-weight-bold text-primary">
-            <i class="fas fa-file-invoice-dollar mr-2"></i>
-            Mis Préstamos
-        </h1>
-        <div class="badge badge-primary p-2">
-            <i class="fas fa-user-shield mr-1"></i>
-            Área Cliente
-        </div>
+<div class="d-flex justify-content-between align-items-center">
+    <h1 class="font-weight-bold text-primary">
+        <i class="fas fa-file-invoice-dollar mr-2"></i>
+        Mis Préstamos
+    </h1>
+    <div class="badge badge-primary p-2">
+        <i class="fas fa-user-shield mr-1"></i>
+        Área Cliente
     </div>
+</div>
 @endsection
 
 @section('css')
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
-    <style>
-        .loan-card {
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            margin-bottom: 25px;
-            border: none;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-        .loan-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-        }
-        .loan-card-header {
-            background: linear-gradient(135deg, #2c3e50, #3498db);
-            color: white;
-            padding: 15px 20px;
-            border-bottom: none;
-            position: relative;
-        }
-        .loan-card-header .status-badge {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 5px 10px;
-            border-radius: 20px;
-        }
-        .loan-card-body {
-            padding: 20px;
-            background-color: #fff;
-        }
-        .loan-summary {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
-        }
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+<style>
+    .loan-card {
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        margin-bottom: 25px;
+        border: none;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .loan-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .loan-card-header {
+        background: linear-gradient(135deg, #2c3e50, #3498db);
+        color: white;
+        padding: 15px 20px;
+        border-bottom: none;
+        position: relative;
+    }
+
+    .loan-card-header .status-badge {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 5px 10px;
+        border-radius: 20px;
+    }
+
+    .loan-card-body {
+        padding: 20px;
+        background-color: #fff;
+    }
+
+    .loan-summary {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        margin-bottom: 15px;
+    }
+
+    .loan-summary-item {
+        flex: 1;
+        min-width: 150px;
+        margin-bottom: 10px;
+        padding: 0 10px;
+    }
+
+    .loan-summary-label {
+        font-size: 0.8rem;
+        color: #7f8c8d;
+        font-weight: 500;
+        margin-bottom: 5px;
+    }
+
+    .loan-summary-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .loan-summary-value.amount {
+        color: #27ae60;
+        font-size: 1.3rem;
+    }
+
+    .loan-progress-container {
+        margin: 20px 0;
+    }
+
+    .loan-progress-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+        font-size: 0.85rem;
+    }
+
+    .loan-progress-bar {
+        height: 8px;
+        border-radius: 4px;
+        background-color: #ecf0f1;
+        overflow: hidden;
+    }
+
+    .loan-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #2ecc71, #27ae60);
+        border-radius: 4px;
+        transition: width 0.6s ease;
+    }
+
+    .loan-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 15px;
+        gap: 10px;
+    }
+
+    .btn-loan-action {
+        border-radius: 4px;
+        padding: 8px 15px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.3s;
+    }
+
+    .btn-details {
+        background-color: #3498db;
+        color: white;
+        border: none;
+    }
+
+    .btn-details:hover {
+        background-color: #2980b9;
+        transform: translateY(-2px);
+    }
+
+    .btn-pay {
+        background: linear-gradient(135deg, #2ecc71, #27ae60);
+        color: white;
+        border: none;
+    }
+
+    .btn-pay:hover {
+        background: linear-gradient(135deg, #27ae60, #219653);
+        transform: translateY(-2px);
+    }
+
+    .loan-stats-card {
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        background-color: white;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .loan-stats-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 5px;
+    }
+
+    .loan-stats-label {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+    }
+
+    .section-title {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+
+    .empty-state-icon {
+        font-size: 3rem;
+        color: #bdc3c7;
+        margin-bottom: 15px;
+    }
+
+    .empty-state-text {
+        font-size: 1.1rem;
+        color: #7f8c8d;
+        margin-bottom: 20px;
+    }
+
+    .tab-content {
+        padding: 20px 0;
+    }
+
+    .nav-tabs .nav-link {
+        font-weight: 600;
+        color: #7f8c8d;
+        border: none;
+        padding: 12px 20px;
+    }
+
+    .nav-tabs .nav-link.active {
+        color: #3498db;
+        border-bottom: 3px solid #3498db;
+        background-color: transparent;
+    }
+
+    .loan-detail-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px dashed #eee;
+    }
+
+    .loan-detail-label {
+        font-weight: 500;
+        color: #7f8c8d;
+    }
+
+    .loan-detail-value {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .status-active {
+        background-color: rgba(46, 204, 113, 0.2);
+        color: #27ae60;
+    }
+
+    .status-pending {
+        background-color: rgba(241, 196, 15, 0.2);
+        color: #f39c12;
+    }
+
+    .status-completed {
+        background-color: rgba(52, 152, 219, 0.2);
+        color: #2980b9;
+    }
+
+    .status-default {
+        background-color: rgba(189, 195, 199, 0.2);
+        color: #7f8c8d;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
         .loan-summary-item {
-            flex: 1;
-            min-width: 150px;
-            margin-bottom: 10px;
-            padding: 0 10px;
-        }
-        .loan-summary-label {
-            font-size: 0.8rem;
-            color: #7f8c8d;
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
-        .loan-summary-value {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #2c3e50;
-        }
-        .loan-summary-value.amount {
-            color: #27ae60;
-            font-size: 1.3rem;
-        }
-        .loan-progress-container {
-            margin: 20px 0;
-        }
-        .loan-progress-label {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            font-size: 0.85rem;
-        }
-        .loan-progress-bar {
-            height: 8px;
-            border-radius: 4px;
-            background-color: #ecf0f1;
-            overflow: hidden;
-        }
-        .loan-progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #2ecc71, #27ae60);
-            border-radius: 4px;
-            transition: width 0.6s ease;
-        }
-        .loan-actions {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 15px;
-            gap: 10px;
-        }
-        .btn-loan-action {
-            border-radius: 4px;
-            padding: 8px 15px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            transition: all 0.3s;
-        }
-        .btn-details {
-            background-color: #3498db;
-            color: white;
-            border: none;
-        }
-        .btn-details:hover {
-            background-color: #2980b9;
-            transform: translateY(-2px);
-        }
-        .btn-pay {
-            background: linear-gradient(135deg, #2ecc71, #27ae60);
-            color: white;
-            border: none;
-        }
-        .btn-pay:hover {
-            background: linear-gradient(135deg, #27ae60, #219653);
-            transform: translateY(-2px);
-        }
-        .loan-stats-card {
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            background-color: white;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-        .loan-stats-value {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #2c3e50;
-            margin-bottom: 5px;
-        }
-        .loan-stats-label {
-            font-size: 0.9rem;
-            color: #7f8c8d;
-        }
-        .section-title {
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-        .empty-state-icon {
-            font-size: 3rem;
-            color: #bdc3c7;
+            min-width: 100%;
             margin-bottom: 15px;
-        }
-        .empty-state-text {
-            font-size: 1.1rem;
-            color: #7f8c8d;
-            margin-bottom: 20px;
-        }
-        .tab-content {
-            padding: 20px 0;
-        }
-        .nav-tabs .nav-link {
-            font-weight: 600;
-            color: #7f8c8d;
-            border: none;
-            padding: 12px 20px;
-        }
-        .nav-tabs .nav-link.active {
-            color: #3498db;
-            border-bottom: 3px solid #3498db;
-            background-color: transparent;
-        }
-        .loan-detail-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px dashed #eee;
-        }
-        .loan-detail-label {
-            font-weight: 500;
-            color: #7f8c8d;
-        }
-        .loan-detail-value {
-            font-weight: 600;
-            color: #2c3e50;
-        }
-        .status-active {
-            background-color: rgba(46, 204, 113, 0.2);
-            color: #27ae60;
-        }
-        .status-pending {
-            background-color: rgba(241, 196, 15, 0.2);
-            color: #f39c12;
-        }
-        .status-completed {
-            background-color: rgba(52, 152, 219, 0.2);
-            color: #2980b9;
-        }
-        .status-default {
-            background-color: rgba(189, 195, 199, 0.2);
-            color: #7f8c8d;
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .loan-summary-item {
-                min-width: 100%;
-                margin-bottom: 15px;
-            }
-            .loan-actions {
-                flex-direction: column;
-            }
-            .btn-loan-action {
-                width: 100%;
-                margin-bottom: 10px;
-            }
-            .loan-stats-card {
-                margin-bottom: 15px;
-            }
-            .loan-stats-value {
-                font-size: 1.5rem;
-            }
+        .loan-actions {
+            flex-direction: column;
         }
-    </style>
+
+        .btn-loan-action {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .loan-stats-card {
+            margin-bottom: 15px;
+        }
+
+        .loan-stats-value {
+            font-size: 1.5rem;
+        }
+    }
+</style>
 @endsection
 
 @section('content')
@@ -289,189 +329,201 @@
                 <!-- Préstamos Activos -->
                 <div class="tab-pane fade show active" id="active" role="tabpanel">
                     @if($prestamosActivos->count() > 0)
-                        @foreach($prestamosActivos as $prestamo)
-                            <div class="card loan-card">
-                                <div class="card-header loan-card-header">
-                                    <h5 class="mb-0">Préstamo #{{ $prestamo->id }}</h5>
-                                    <span class="status-badge status-active">
-                                        <i class="fas fa-check-circle mr-1"></i>
-                                        Activo
-                                    </span>
-                                </div>
-                                <div class="card-body loan-card-body">
-                                    <div class="loan-summary">
-                                        <div class="loan-summary-item">
-                                            <div class="loan-summary-label">Monto Total</div>
-                                            <div class="loan-summary-value amount">{{ number_format($prestamo->monto_aprobado, 2) }} Bs.</div>
-                                        </div>
-                                        <div class="loan-summary-item">
-                                            <div class="loan-summary-label">Saldo Pendiente</div>
-                                            <div class="loan-summary-value">{{ number_format($prestamo->saldo_pendiente, 2) }} Bs.</div>
-                                        </div>
-                                        <div class="loan-summary-item">
-                                            <div class="loan-summary-label">Tasa de Interés</div>
-                                            <div class="loan-summary-value">{{ $prestamo->interes }}%</div>
-                                        </div>
-                                        <div class="loan-summary-item">
-                                            <div class="loan-summary-label">Próximo Pago</div>
-                                            <div class="loan-summary-value">{{ $prestamo->proximo_pago }}</div>
-                                        </div>
-                                    </div>
-
-                                    <div class="loan-progress-container">
-                                        <div class="loan-progress-label">
-                                            <span>Pagado: {{ number_format($prestamo->porcentaje_pagado, 0) }}%</span>
-                                            <span>{{ number_format($prestamo->monto_pagado, 2) }} Bs. de {{ number_format($prestamo->monto_aprobado, 2) }} Bs.</span>
-                                        </div>
-                                        <div class="loan-progress-bar">
-                                            <div class="loan-progress-fill" style="width: {{ $prestamo->porcentaje_pagado }}%"></div>
-                                        </div>
-                                    </div>
-
-                                    <div class="loan-actions">
-                                        <button class="btn btn-loan-action btn-details" data-toggle="modal" data-target="#loanDetailsModal" 
-                                            data-loan="{{ json_encode($prestamo) }}">
-                                            <i class="fas fa-eye mr-1"></i> Ver Detalles
-                                        </button>
-                                        <a href="{{ route('pagos.create', ['prestamo_id' => $prestamo->id]) }}" class="btn btn-loan-action btn-pay">
-                                            <i class="fas fa-money-bill-wave mr-1"></i> Realizar Pago
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    @else
-                        <div class="empty-state">
-                            <div class="empty-state-icon">
-                                <i class="fas fa-file-invoice-dollar"></i>
-                            </div>
-                            <h4 class="empty-state-text">No tienes préstamos activos</h4>
-                            <a href="{{ route('solicitudes.create') }}" class="btn btn-primary">
-                                <i class="fas fa-plus mr-1"></i> Solicitar Préstamo
-                            </a>
+                    @foreach($prestamosActivos as $prestamo)
+                    <div class="card loan-card">
+                        <div class="card-header loan-card-header">
+                            <h5 class="mb-0">Préstamo #{{ $prestamo->id }}</h5>
+                            <span class="status-badge status-active">
+                                <i class="fas fa-check-circle mr-1"></i>
+                                Activo
+                            </span>
                         </div>
+                        <div class="card-body loan-card-body">
+                            <div class="loan-summary">
+                                <div class="loan-summary-item">
+                                    <div class="loan-summary-label">Monto Total</div>
+                                    <div class="loan-summary-value amount">{{ number_format($prestamo->monto_aprobado, 2) }} Bs.</div>
+                                </div>
+                                <div class="loan-summary-item">
+                                    <div class="loan-summary-label">Saldo Pendiente</div>
+                                    <div class="loan-summary-value">{{ number_format($prestamo->saldo_pendiente, 2) }} Bs.</div>
+                                </div>
+                                <div class="loan-summary-item">
+                                    <div class="loan-summary-label">Tasa de Interés</div>
+                                    <div class="loan-summary-value">{{ $prestamo->interes->tasa_interes ?? 'Sin interés'}}%</div>
+                                </div>
+                                <div class="loan-summary-item">
+                                    <div class="loan-summary-label">Tipo de Plazo</div>
+                                    <div class="loan-summary-value">
+                                        {{ $prestamo->tipoPlazo->nombre ?? 'No especificado' }}
+                                    </div>
+                                </div>
+                                <div class="loan-summary-item">
+                                    <div class="loan-summary-label">Plazo</div>
+                                    <div class="loan-summary-value">
+                                        {{ $prestamo->plazo ?? 'No especificado' }}
+                                    </div>
+                                </div>
+                                <div class="loan-summary-item">
+                                    <div class="loan-summary-label">Próximo Pago</div>
+                                    <div class="loan-summary-value">{{ $prestamo->proximo_pago }}</div>
+                                </div>
+                            </div>
+
+                            <div class="loan-progress-container">
+                                <div class="loan-progress-label">
+                                    <span>Pagado: {{ number_format($prestamo->porcentaje_pagado, 0) }}%</span>
+                                    <span>{{ number_format($prestamo->monto_pagado, 2) }} Bs. de {{ number_format($prestamo->monto_aprobado, 2) }} Bs.</span>
+                                </div>
+                                <div class="loan-progress-bar">
+                                    <div class="loan-progress-fill" style="width: {{ $prestamo->porcentaje_pagado }}%"></div>
+                                </div>
+                            </div>
+
+                            <div class="loan-actions">
+                                <button class="btn btn-loan-action btn-details" data-toggle="modal" data-target="#loanDetailsModal"
+                                    data-loan="{{ json_encode($prestamo) }}">
+                                    <i class="fas fa-eye mr-1"></i> Ver Detalles
+                                </button>
+                                <a href="{{ route('pagos.create', ['prestamo_id' => $prestamo->id]) }}" class="btn btn-loan-action btn-pay">
+                                    <i class="fas fa-money-bill-wave mr-1"></i> Realizar Pago
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                    @else
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                        <h4 class="empty-state-text">No tienes préstamos activos</h4>
+                        <a href="{{ route('solicitudes.create') }}" class="btn btn-primary">
+                            <i class="fas fa-plus mr-1"></i> Solicitar Préstamo
+                        </a>
+                    </div>
                     @endif
                 </div>
 
                 <!-- Préstamos Finalizados -->
                 <div class="tab-pane fade" id="completed" role="tabpanel">
                     @if($prestamosFinalizados->count() > 0)
-                        @foreach($prestamosFinalizados as $prestamo)
-                            <div class="card loan-card">
-                                <div class="card-header loan-card-header">
-                                    <h5 class="mb-0">Préstamo #{{ $prestamo->id }}</h5>
-                                    <span class="status-badge status-completed">
-                                        <i class="fas fa-flag-checkered mr-1"></i>
-                                        Finalizado
-                                    </span>
-                                </div>
-                                <div class="card-body loan-card-body">
-                                    <div class="loan-summary">
-                                        <div class="loan-summary-item">
-                                            <div class="loan-summary-label">Monto Total</div>
-                                            <div class="loan-summary-value amount">{{ number_format($prestamo->monto_aprobado, 2) }} Bs.</div>
-                                        </div>
-                                        <div class="loan-summary-item">
-                                            <div class="loan-summary-label">Interés Pagado</div>
-                                            <div class="loan-summary-value">{{ number_format($prestamo->interes_pagado, 2) }} Bs.</div>
-                                        </div>
-                                        <div class="loan-summary-item">
-                                            <div class="loan-summary-label">Fecha Finalización</div>
-                                            <div class="loan-summary-value">{{ $prestamo->fecha_finalizacion}}</div>
-                                        </div>
-                                        <div class="loan-summary-item">
-                                            <div class="loan-summary-label">Estado</div>
-                                            <div class="loan-summary-value">Completado</div>
-                                        </div>
-                                    </div>
-
-                                    <div class="loan-progress-container">
-                                        <div class="loan-progress-label">
-                                            <span>Pagado: 100%</span>
-                                            <span>{{ number_format($prestamo->monto_aprobado, 2) }} Bs. de {{ number_format($prestamo->monto_aprobado, 2) }} Bs.</span>
-                                        </div>
-                                        <div class="loan-progress-bar">
-                                            <div class="loan-progress-fill" style="width: 100%"></div>
-                                        </div>
-                                    </div>
-
-                                    <div class="loan-actions">
-                                        <button type="button" 
-                                                class="btn btn-loan-action btn-details"
-                                                onclick="window.location='{{ route('prestamos.show', $prestamo->id) }}'">
-                                            <i class="fas fa-eye mr-1"></i> Ver Detalles
-                                        </button>
-                                        <button class="btn btn-loan-action btn-secondary">
-                                            <i class="fas fa-file-download mr-1"></i> Descargar Certificado
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    @else
-                        <div class="empty-state">
-                            <div class="empty-state-icon">
-                                <i class="fas fa-flag-checkered"></i>
-                            </div>
-                            <h4 class="empty-state-text">No tienes préstamos finalizados</h4>
+                    @foreach($prestamosFinalizados as $prestamo)
+                    <div class="card loan-card">
+                        <div class="card-header loan-card-header">
+                            <h5 class="mb-0">Préstamo #{{ $prestamo->id }}</h5>
+                            <span class="status-badge status-completed">
+                                <i class="fas fa-flag-checkered mr-1"></i>
+                                Finalizado
+                            </span>
                         </div>
+                        <div class="card-body loan-card-body">
+                            <div class="loan-summary">
+                                <div class="loan-summary-item">
+                                    <div class="loan-summary-label">Monto Total</div>
+                                    <div class="loan-summary-value amount">{{ number_format($prestamo->monto_aprobado, 2) }} Bs.</div>
+                                </div>
+                                <div class="loan-summary-item">
+                                    <div class="loan-summary-label">Interés Pagado</div>
+                                    <div class="loan-summary-value">{{ number_format($prestamo->interes_pagado, 2) }} Bs.</div>
+                                </div>
+                                <div class="loan-summary-item">
+                                    <div class="loan-summary-label">Fecha Finalización</div>
+                                    <div class="loan-summary-value">{{ $prestamo->fecha_finalizacion}}</div>
+                                </div>
+                                <div class="loan-summary-item">
+                                    <div class="loan-summary-label">Estado</div>
+                                    <div class="loan-summary-value">Completado</div>
+                                </div>
+                            </div>
+
+                            <div class="loan-progress-container">
+                                <div class="loan-progress-label">
+                                    <span>Pagado: 100%</span>
+                                    <span>{{ number_format($prestamo->monto_aprobado, 2) }} Bs. de {{ number_format($prestamo->monto_aprobado, 2) }} Bs.</span>
+                                </div>
+                                <div class="loan-progress-bar">
+                                    <div class="loan-progress-fill" style="width: 100%"></div>
+                                </div>
+                            </div>
+
+                            <div class="loan-actions">
+                                <button type="button"
+                                    class="btn btn-loan-action btn-details"
+                                    onclick="window.location='{{ route('prestamos.show', $prestamo->id) }}'">
+                                    <i class="fas fa-eye mr-1"></i> Ver Detalles
+                                </button>
+                                <button class="btn btn-loan-action btn-secondary">
+                                    <i class="fas fa-file-download mr-1"></i> Descargar Certificado
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                    @else
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-flag-checkered"></i>
+                        </div>
+                        <h4 class="empty-state-text">No tienes préstamos finalizados</h4>
+                    </div>
                     @endif
                 </div>
 
                 <!-- Préstamos Pendientes -->
                 <div class="tab-pane fade" id="pending" role="tabpanel">
                     @if($prestamosPendientes->count() > 0)
-                        @foreach($prestamosPendientes as $prestamo)
-                            <div class="card loan-card">
-                                <div class="card-header loan-card-header">
-                                    <h5 class="mb-0">Solicitud #{{ $prestamo->id }}</h5>
-                                    <span class="status-badge status-pending">
-                                        <i class="fas fa-clock mr-1"></i>
-                                        En Revisión
-                                    </span>
-                                </div>
-                                <div class="card-body loan-card-body">
-                                    <div class="loan-summary">
-                                        <div class="loan-summary-item">
-                                            <div class="loan-summary-label">Monto Solicitado</div>
-                                            <div class="loan-summary-value amount">{{ number_format($prestamo->monto_solicitado, 2) }} Bs.</div>
-                                        </div>
-                                        <div class="loan-summary-item">
-                                            <div class="loan-summary-label">Fecha Solicitud</div>
-                                            <div class="loan-summary-value">{{ $prestamo->created_at->format('d/m/Y') }}</div>
-                                        </div>
-                                        <div class="loan-summary-item">
-                                            <div class="loan-summary-label">Estado</div>
-                                            <div class="loan-summary-value">En Proceso</div>
-                                        </div>
-                                        <div class="loan-summary-item">
-                                            <div class="loan-summary-label">Tiempo Estimado</div>
-                                            <div class="loan-summary-value">2-3 días hábiles</div>
-                                        </div>
-                                    </div>
-
-                                    <div class="loan-actions">
-                                        <button class="btn btn-loan-action btn-details" data-toggle="modal" data-target="#loanDetailsModal" 
-                                            data-loan="{{ json_encode($prestamo) }}">
-                                            <i class="fas fa-eye mr-1"></i> Ver Detalles
-                                        </button>
-                                        <button class="btn btn-loan-action btn-secondary">
-                                            <i class="fas fa-envelope mr-1"></i> Contactar Soporte
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    @else
-                        <div class="empty-state">
-                            <div class="empty-state-icon">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <h4 class="empty-state-text">No tienes préstamos pendientes</h4>
-                            <a href="{{ route('solicitudes.create') }}" class="btn btn-primary">
-                                <i class="fas fa-plus mr-1"></i> Solicitar Préstamo
-                            </a>
+                    @foreach($prestamosPendientes as $prestamo)
+                    <div class="card loan-card">
+                        <div class="card-header loan-card-header">
+                            <h5 class="mb-0">Solicitud #{{ $prestamo->id }}</h5>
+                            <span class="status-badge status-pending">
+                                <i class="fas fa-clock mr-1"></i>
+                                En Revisión
+                            </span>
                         </div>
+                        <div class="card-body loan-card-body">
+                            <div class="loan-summary">
+                                <div class="loan-summary-item">
+                                    <div class="loan-summary-label">Monto Solicitado</div>
+                                    <div class="loan-summary-value amount">{{ number_format($prestamo->monto_solicitado, 2) }} Bs.</div>
+                                </div>
+                                <div class="loan-summary-item">
+                                    <div class="loan-summary-label">Fecha Solicitud</div>
+                                    <div class="loan-summary-value">{{ $prestamo->created_at->format('d/m/Y') }}</div>
+                                </div>
+                                <div class="loan-summary-item">
+                                    <div class="loan-summary-label">Estado</div>
+                                    <div class="loan-summary-value">En Proceso</div>
+                                </div>
+                                <div class="loan-summary-item">
+                                    <div class="loan-summary-label">Tiempo Estimado</div>
+                                    <div class="loan-summary-value">2-3 días hábiles</div>
+                                </div>
+                            </div>
+
+                            <div class="loan-actions">
+                                <button class="btn btn-loan-action btn-details" data-toggle="modal" data-target="#loanDetailsModal"
+                                    data-loan="{{ json_encode($prestamo) }}">
+                                    <i class="fas fa-eye mr-1"></i> Ver Detalles
+                                </button>
+                                <button class="btn btn-loan-action btn-secondary">
+                                    <i class="fas fa-envelope mr-1"></i> Contactar Soporte
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                    @else
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <h4 class="empty-state-text">No tienes préstamos pendientes</h4>
+                        <a href="{{ route('solicitudes.create') }}" class="btn btn-primary">
+                            <i class="fas fa-plus mr-1"></i> Solicitar Préstamo
+                        </a>
+                    </div>
                     @endif
                 </div>
             </div>
@@ -509,14 +561,14 @@
 <script>
     $(document).ready(function() {
         // Cargar detalles del préstamo en el modal
-        $('#loanDetailsModal').on('show.bs.modal', function (event) {
+        $('#loanDetailsModal').on('show.bs.modal', function(event) {
             var button = $(event.relatedTarget);
             var loanData = JSON.parse(button.data('loan'));
             var modal = $(this);
-            
+
             // Configurar título
             modal.find('.modal-title').text('Detalles del ' + (loanData.fecha_finalizacion ? 'Préstamo' : 'Solicitud') + ' #' + loanData.id);
-            
+
             // Construir contenido del modal
             var content = `
                 <div class="row">
@@ -609,42 +661,58 @@
                 </div>
                 ` : ''}
             `;
-            
+
             modal.find('#loanDetailsContent').html(content);
         });
-        
+
         // Función para formatear moneda
         function formatCurrency(amount) {
             return parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
         }
-        
+
         // Función para formatear fecha
         function formatDate(dateString) {
             const date = new Date(dateString);
             return date.toLocaleDateString('es-ES');
         }
-        
+
         // Función para obtener el badge de estado
         function getStatusBadge(status) {
             const statusMap = {
-                'activo': {class: 'status-active', icon: 'check-circle', text: 'Activo'},
-                'pendiente': {class: 'status-pending', icon: 'clock', text: 'Pendiente'},
-                'completado': {class: 'status-completed', icon: 'flag-checkered', text: 'Completado'},
-                'default': {class: 'status-default', icon: 'info-circle', text: 'Desconocido'}
+                'activo': {
+                    class: 'status-active',
+                    icon: 'check-circle',
+                    text: 'Activo'
+                },
+                'pendiente': {
+                    class: 'status-pending',
+                    icon: 'clock',
+                    text: 'Pendiente'
+                },
+                'completado': {
+                    class: 'status-completed',
+                    icon: 'flag-checkered',
+                    text: 'Completado'
+                },
+                'default': {
+                    class: 'status-default',
+                    icon: 'info-circle',
+                    text: 'Desconocido'
+                }
             };
-            
+
             const statusInfo = statusMap[status] || statusMap['default'];
             return `<span class="badge ${statusInfo.class} p-1">
                 <i class="fas fa-${statusInfo.icon} mr-1"></i>
                 ${statusInfo.text}
             </span>`;
         }
-        
+
         // Imprimir detalles del préstamo
         $('#printLoanDetails').click(function() {
             var printContent = document.getElementById('loanDetailsContent').innerHTML;
             var originalContent = document.body.innerHTML;
-            
+
             document.body.innerHTML = `
                 <h3 class="text-center mb-4">${document.getElementById('loanDetailsModalLabel').innerText}</h3>
                 ${printContent}
@@ -652,17 +720,17 @@
                     <small>Generado el ${new Date().toLocaleDateString('es-ES')}</small>
                 </div>
             `;
-            
+
             window.print();
             document.body.innerHTML = originalContent;
             $('#loanDetailsModal').modal('show');
         });
-        
+
         // Actualizar pestañas activas en localStorage
         $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
             localStorage.setItem('lastLoanTab', $(e.target).attr('href'));
         });
-        
+
         // Recuperar última pestaña activa
         var lastTab = localStorage.getItem('lastLoanTab');
         if (lastTab) {

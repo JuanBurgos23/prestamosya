@@ -14,6 +14,10 @@ class TipoPlazo extends Model
     ];
     public function intereses()
     {
-        return $this->hasMany(Interes::class, 'tipo_plazo_id');
+        return $this->hasMany(Interes::class, 'id_tipo_plazo');
+    }
+    public function interesActivo()
+    {
+        return $this->hasOne(Interes::class, 'id_tipo_plazo')->where('estado', 'activo');
     }
 }

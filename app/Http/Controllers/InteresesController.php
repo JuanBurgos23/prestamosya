@@ -20,11 +20,6 @@ class InteresesController extends Controller
     public function storePlazo(Request $request)
     {
         try {
-            $request->validate([
-                'nombre' => 'required|string|max:50',
-                'estado' => 'required|boolean'
-            ]);
-
             TipoPlazo::create([
                 'nombre' => $request->nombre,
                 'estado' => $request->estado
@@ -45,12 +40,6 @@ class InteresesController extends Controller
     public function updatePlazo(Request $request, $id)
     {
         try {
-            $request->validate([
-                'nombre' => 'required|string|max:50',
-                'dias' => 'required|integer|min:1',
-                'estado' => 'required|boolean'
-            ]);
-
             $plazo = TipoPlazo::findOrFail($id);
             $plazo->update($request->all());
 
@@ -96,13 +85,8 @@ class InteresesController extends Controller
 
     public function updateInteres(Request $request, $id)
     {
+        //dd($request->all());
         try {
-            $request->validate([
-                'tipo_plazo_id' => 'required|exists:tipo_plazos,id',
-                'tasa' => 'required|numeric|min:0|max:100',
-                'estado' => 'required|boolean'
-            ]);
-
             $interes = Interes::findOrFail($id);
             $interes->update($request->all());
 

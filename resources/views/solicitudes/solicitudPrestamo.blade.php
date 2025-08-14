@@ -338,34 +338,35 @@
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="form-label">Plazo de Pago</label>
+                                <label for="plazoValue">Duración del Préstamo</label>
                                 <div class="row">
                                     <div class="col-md-8">
-                                        <input type="range" class="form-control-range custom-range" min="1" max="60"
-                                            value="12" id="plazoRange" oninput="updatePlazoValue(this.value)">
+                                        <input type="range" class="form-control-range custom-range" id="plazoRange" min="1" max="60" value="12" oninput="updatePlazoValue(this.value)">
                                     </div>
                                     <div class="col-md-4">
-                                        <input type="number" class="form-control form-control-bank text-center"
-                                            name="plazo" id="plazoValue" value="12" min="1" max="60"
-                                            onchange="updatePlazoRange(this.value)" required>
+                                        <input type="number" class="form-control text-center" id="plazoValue" name="plazo" min="1" max="60" value="12" onchange="updatePlazoRange(this.value)" required>
                                     </div>
                                 </div>
                                 <div class="d-flex justify-content-between mt-1">
-                                    <small>1 mes</small>
-                                    <small>60 meses</small>
+                                    <small id="plazoMinLabel">1 mes</small>
+                                    <small id="plazoMaxLabel">60 meses</small>
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Tipo de Plazo</label>
-                                <select class="form-control form-control-bank" name="tipo_plazo" required>
-                                    <option value="diario">Diario</option>
-                                    <option value="semanal">Semanal</option>
-                                    <option value="mensual" selected>Mensual</option>
-                                    <option value="anual">Anual</option>
+                                <select class="form-control form-control-bank" name="id_tipo_plazo" id="tipoPlazoSelect" required>
+                                    @foreach($tiposPlazo as $tipo)
+                                    <option value="{{ $tipo->id }}"
+                                        data-tasa="{{ $tipo->interesActivo->tasa_interes ?? 0 }}"
+                                        data-nombre="{{ strtolower($tipo->nombre) }}"
+                                        {{ strtolower($tipo->nombre) == 'mensual' ? 'selected' : '' }}>
+                                        {{ $tipo->nombre }}
+                                    </option>
+                                    @endforeach
                                 </select>
+                                <small class="text-muted">Ejemplo: Si eliges "diario" y pones 30, significa que pagarás en 30 días.</small>
                             </div>
-
                             <div class="form-group">
                                 <label class="form-label">Destino del Préstamo</label>
                                 <textarea class="form-control form-control-bank" name="destino_prestamo"
@@ -390,7 +391,9 @@
                         </div>
                         <div class="summary-item">
                             <span class="summary-label">Cuota estimada:</span>
-                            <span class="summary-value" id="resumenCuota">0.00 Bs./mes</span>
+                            <div id="resumenCuotaCapital" class="summary-value">capital = 0.00 Bs.</div>
+                            <div id="resumenCuotaInteres" class="summary-value">interés = 0.00 Bs.</div>
+                            <div id="resumenCuotaTotal" class="summary-value">total = 0.00 Bs./mes</div>
                         </div>
                         <div class="summary-item summary-total">
                             <span>Total a pagar:</span>
@@ -596,7 +599,7 @@
                                 </div>
                                 <div class="summary-item">
                                     <span class="summary-label">Correo electrónico:</span>
-                                    <span class="summary-value" id="confirmEmail">{{ $cliente->correo }}</span>
+                                    <span class="summary-value" id="confirmEmail">{{ $cliente->user->email }}</span>
                                 </div>
                             </div>
                         </div>
@@ -738,55 +741,118 @@
         });
     });
 
-    // Función para actualizar el resumen del préstamo
     function actualizarResumen() {
         const monto = parseFloat($('#montoSolicitado').val()) || 0;
         const plazo = parseInt($('#plazoValue').val()) || 1;
-        const tipoPlazo = $('[name="tipo_plazo"]').val();
 
-        // Tasa de interés según el tipo de plazo (puedes ajustarlo según tu BD)
-        let tasaInteres = Number("{{ $interes->tasa_interes ?? 0 }}"); // 10 significa 10% por el plazo seleccionado
-        if (monto > 50000) tasaInteres = 10.5;
-        if (monto > 80000) tasaInteres = 9.0;
+        const tipoPlazoSelect = document.getElementById('tipoPlazoSelect');
+        const selectedOption = tipoPlazoSelect.options[tipoPlazoSelect.selectedIndex];
+        const tasaInteresMensual = Number(selectedOption.getAttribute('data-tasa')) || 0;
+        const nombreTipoPlazo = selectedOption.getAttribute('data-nombre') || '';
 
-        // Interés por cada cuota según tipo de plazo
-        const interesPorCuota = monto * (tasaInteres / 100);
-
-        // Cada cuota = capital por cuota + interés por cuota
-        const cuotaCapital = monto / plazo;
-        const cuota = cuotaCapital + interesPorCuota;
-        const totalPagar = cuota * plazo;
-
-        // Texto de la unidad
-        let unidad = '';
-        switch (tipoPlazo) {
+        // Convertir plazo a meses equivalentes
+        let mesesEquivalentes = 0;
+        switch (nombreTipoPlazo) {
             case 'diario':
-                unidad = 'día';
+                mesesEquivalentes = plazo / 30;
                 break;
             case 'semanal':
-                unidad = 'semana';
+                mesesEquivalentes = plazo / 4.3;
                 break;
             case 'quincenal':
-                unidad = 'quincena';
+                mesesEquivalentes = plazo / 2;
                 break;
             case 'mensual':
-                unidad = 'mes';
+                mesesEquivalentes = plazo;
                 break;
             case 'anual':
-                unidad = 'año';
+                mesesEquivalentes = plazo * 12;
                 break;
+            default:
+                mesesEquivalentes = plazo;
+        }
+        if (mesesEquivalentes === 0) mesesEquivalentes = 1;
+
+        // Capital mensual y interés mensual (sobre monto)
+        const capitalMensual = monto / mesesEquivalentes;
+        const interesMensual = monto * (tasaInteresMensual / 100);
+
+        let cuotaCapital = 0;
+        let cuotaInteres = 0;
+        let cuotaTotal = 0;
+        let totalPagar = 0;
+        let unidadTexto = '';
+
+        switch (nombreTipoPlazo) {
+            case 'diario':
+                unidadTexto = 'día';
+                cuotaCapital = capitalMensual / 30;
+                cuotaInteres = interesMensual / 30;
+                cuotaTotal = cuotaCapital + cuotaInteres;
+                totalPagar = cuotaTotal * plazo;
+                break;
+            case 'semanal':
+                unidadTexto = 'semana';
+                cuotaCapital = capitalMensual / 4.3;
+                cuotaInteres = interesMensual / 4.3;
+                cuotaTotal = cuotaCapital + cuotaInteres;
+                totalPagar = cuotaTotal * plazo;
+                break;
+            case 'quinsenal':
+                unidadTexto = 'quincena';
+                cuotaCapital = capitalMensual / 2;
+                cuotaInteres = interesMensual / 2;
+                cuotaTotal = cuotaCapital + cuotaInteres;
+                totalPagar = cuotaTotal * plazo;
+                break;
+            case 'mensual':
+                unidadTexto = 'mes';
+                cuotaCapital = capitalMensual;
+                cuotaInteres = interesMensual;
+                cuotaTotal = cuotaCapital + cuotaInteres;
+                totalPagar = cuotaTotal * plazo;
+                break;
+            case 'anual':
+                unidadTexto = 'año';
+                // Aquí capital y interés mensual * 12 para anual, pero no multiplicar totalPagar por plazo (ya es años)
+                cuotaCapital = capitalMensual * 12;
+                cuotaInteres = interesMensual * 12;
+                cuotaTotal = cuotaCapital + cuotaInteres;
+                totalPagar = cuotaTotal * plazo; // plazo en años
+                break;
+            default:
+                unidadTexto = '';
+                cuotaCapital = capitalMensual;
+                cuotaInteres = interesMensual;
+                cuotaTotal = cuotaCapital + cuotaInteres;
+                totalPagar = cuotaTotal * plazo;
         }
 
-        // Actualizar UI
         $('#resumenMonto').text(monto.toLocaleString('es-ES', {
             minimumFractionDigits: 2
         }) + ' Bs.');
-        $('#resumenInteres').text(tasaInteres.toFixed(1) + ' % ' + unidad);
-        $('#resumenPlazo').text(plazo + ' ' + (unidad + (plazo > 1 ? 's' : '')));
-        $('#resumenCuota').text(cuota.toFixed(2) + ' Bs./' + unidad);
+        $('#resumenInteres').text(tasaInteresMensual.toFixed(2) + ' % mensual');
+        $('#resumenPlazo').text(plazo + ' ' + unidadTexto + (plazo > 1 ? '' : ''));
+        $('#resumenCuota').text(cuotaTotal.toFixed(2) + ' Bs./' + unidadTexto);
+        $('#resumenCuotaCapital').text('capital = ' + cuotaCapital.toFixed(2) + ' Bs.');
+        $('#resumenCuotaInteres').text('interés = ' + cuotaInteres.toFixed(2) + ' Bs.');
+        $('#resumenCuotaTotal').text('total = ' + cuotaTotal.toFixed(2) + ' Bs./' + unidadTexto);
         $('#resumenTotal').text(totalPagar.toFixed(2) + ' Bs.');
     }
-    // Función para sincronizar el rango y el valor numérico del plazo
+
+    document.addEventListener('DOMContentLoaded', function() {
+        $('#montoSolicitado, #plazoValue, #tipoPlazoSelect').on('input change', actualizarResumen);
+        actualizarResumen();
+
+        // Actualizar al cambiar monto rápido
+        document.querySelectorAll('input[name="monto_rapido"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.getElementById('montoSolicitado').value = this.value;
+                actualizarResumen();
+            });
+        });
+    });
+
     function updatePlazoValue(value) {
         $('#plazoValue').val(value);
         actualizarResumen();
@@ -856,17 +922,26 @@
 
     // Actualizar la sección de confirmación con los datos ingresados
     function updateConfirmation() {
+        // Aseguramos que el cálculo esté actualizado
+        actualizarResumen();
+
         $('#confirmTipoPrestamo').text($('[name="tipo_prestamo"] option:selected').text());
-        $('#confirmMonto').text($('#montoSolicitado').val() ? parseFloat($('#montoSolicitado').val()).toLocaleString('es-ES', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }) + ' Bs.' : '-');
-        $('#confirmPlazo').text($('#plazoValue').val() + ' ' + ($('[name="tipo_plazo"] option:selected').val() === 'mensual' ? 'meses' : $('[name="tipo_plazo"] option:selected').val() === 'quincenal' ? 'quincenas' : 'semanas'));
-        $('#confirmCuota').text($('#resumenCuota').text());
-        $('#confirmNombre').text($('[name="nombres"]').val() + ' ' + $('[name="apellidos"]').val());
-        $('#confirmDocumento').text($('[name="tipo_documento"] option:selected').text() + ': ' + $('[name="numero_documento"]').val());
+
+        $('#confirmMonto').text($('#montoSolicitado').val() ?
+            parseFloat($('#montoSolicitado').val()).toLocaleString('es-ES', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }) + ' Bs.' :
+            '-'
+        );
+
+        $('#confirmPlazo').text($('#resumenPlazo').text()); // ya formateado
+
+        // Tomamos la cuota directamente del resumen
+        $('#confirmCuota').text($('#resumenCuotaTotal').text());
+
         $('#confirmTelefono').text($('[name="telefono"]').val());
-        $('#confirmEmail').text($('[name="email"]').val());
+        $('#confirmEmail').text($('[name="correo"]').val());
     }
 </script>
 @endsection

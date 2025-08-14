@@ -7,8 +7,10 @@ use App\Models\DetalleDocumento;
 use App\Models\Documento;
 use App\Models\Interes;
 use App\Models\SolicitudPrestamo;
+use App\Models\TipoPlazo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class SolicitudPrestamoController extends Controller
 {
@@ -17,12 +19,16 @@ class SolicitudPrestamoController extends Controller
         $cliente = Cliente::where('user_id', auth()->id())->firstOrFail();
         $documentos = Documento::all()->keyBy('id');
         $interes = Interes::where('estado', 'activo')->first();
-        return view('solicitudes.solicitudPrestamo', compact('cliente', 'documentos', 'interes'));
-    }
 
+        // Obtener todos los tipos de plazo con su interés relacionado
+        $tiposPlazo = TipoPlazo::with('interesActivo')->get();
+
+        return view('solicitudes.solicitudPrestamo', compact('cliente', 'documentos', 'interes', 'tiposPlazo'));
+    }
     // Registrar solicitud de préstamo
     public function store(Request $request)
     {
+        //dd($request->all());
         // Validación de los datos
         $request->validate([
             'monto_solicitado' => 'required|numeric|min:0.01',
@@ -42,6 +48,21 @@ class SolicitudPrestamoController extends Controller
             return back()->with('error', 'No tienes un prestamista asignado.');
         }
 
+        // Procesar firma digital (si viene en base64 desde un canvas)
+        $firmaPath = null;
+        if ($request->firma_electronica) {
+            if (preg_match('/^data:image\/(\w+);base64,/', $request->firma_electronica, $type)) {
+                $image = substr($request->firma_electronica, strpos($request->firma_electronica, ',') + 1);
+                $type = strtolower($type[1]); // jpg, png, etc.
+
+                $image = str_replace(' ', '+', $image);
+                $image = base64_decode($image);
+
+                $firmaPath = 'firmas/' . uniqid() . '.' . $type;
+                Storage::disk('public')->put($firmaPath, $image);
+            }
+        }
+
         // Crear la solicitud de préstamo
         $solicitud = SolicitudPrestamo::create([
             'id_cliente' => $cliente->id,
@@ -49,8 +70,9 @@ class SolicitudPrestamoController extends Controller
             'monto_solicitado' => $request->monto_solicitado,
             'destino_prestamo' => $request->destino_prestamo,
             'tipo_prestamo' => $request->tipo_prestamo,
-            'tipo_plazo' => $request->tipo_plazo,
-            'cantidad_plazo' => $request->cantidad_plazo,
+            'id_tipo_plazo' => $request->id_tipo_plazo,
+            'cantidad_plazo' => $request->plazo,
+            'firma_digital' => $firmaPath, // guardamos la ruta de la firma
             'estado' => 'pendiente',
         ]);
 
@@ -74,16 +96,15 @@ class SolicitudPrestamoController extends Controller
             }
         }
 
-        // Asociar otros documentos (opcionales), manejando uno o varios archivos
+        // Asociar otros documentos (opcionales)
         $otrosDocumentos = $request->file('otros_documentos');
-
         if ($otrosDocumentos) {
             if (is_array($otrosDocumentos)) {
                 foreach ($otrosDocumentos as $file) {
                     $path = $file->store('documentos', 'public');
 
                     DetalleDocumento::create([
-                        'id_documento' => 4, // ID para "Otros documentos"
+                        'id_documento' => 4,
                         'id_solicitud_prestamo' => $solicitud->id,
                         'ruta' => $path,
                     ]);
@@ -102,6 +123,7 @@ class SolicitudPrestamoController extends Controller
         return redirect()->route('solicitudes.create')->with('success', 'Solicitud enviada correctamente.');
     }
 
+
     public function aprobar($id)
     {
         $solicitud = SolicitudPrestamo::findOrFail($id);
@@ -110,8 +132,6 @@ class SolicitudPrestamoController extends Controller
             return back()->with('error', 'La solicitud ya fue procesada.');
         }
 
-        $solicitud->estado = 'aprobado';
-        $solicitud->save();
 
         // Redirigir a la vista de crear préstamo, pasando el cliente como parámetro
         return redirect()->route('prestamos.create', ['cliente_id' => $solicitud->id_cliente, 'solicitud_id' => $solicitud->id]);

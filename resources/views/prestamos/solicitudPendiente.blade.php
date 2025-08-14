@@ -344,15 +344,14 @@
                         @endif
 
                         <div class="action-buttons">
-                            <a href="{{ route('solicitudes.show', $solicitud->id) }}" class="btn btn-details">
+                            <!--<a href="{{ route('solicitudes.show', $solicitud->id) }}" class="btn btn-details">
                                 <i class="fas fa-eye mr-1"></i> Ver Detalles
-                            </a>
-                            
+                            </a>-->
                             @if($solicitud->estado == 'pendiente')
                             <form action="{{ route('solicitudes.aprobar', $solicitud->id) }}" method="POST" class="d-inline">
                                 @csrf
-                                <button type="submit" class="btn btn-approve">
-                                    <i class="fas fa-check mr-1"></i> Aprobar
+                                <button type="submit" class="btn btn-details">
+                                    <i class="fas fa-eye mr-1"></i> Ver Detalles
                                 </button>
                             </form>
                             <button type="button" class="btn btn-deny" data-toggle="modal" 

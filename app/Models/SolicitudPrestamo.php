@@ -18,8 +18,9 @@ class SolicitudPrestamo extends Model
         'monto_solicitado',
         'destino_prestamo',
         'tipo_prestamo',
-        'tipo_plazo',
+        'id_tipo_plazo',
         'cantidad_plazo',
+        'firma_digital',
         'estado',
     ];
 
@@ -36,5 +37,9 @@ class SolicitudPrestamo extends Model
     public function detallesDocumentos()
     {
         return $this->hasMany(DetalleDocumento::class, 'id_solicitud_prestamo');
+    }
+    public function tipoPlazo()
+    {
+        return $this->belongsTo(TipoPlazo::class, 'id_tipo_plazo');
     }
 }

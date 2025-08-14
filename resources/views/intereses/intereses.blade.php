@@ -7,6 +7,8 @@
 @stop
 
 @section('content')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <div class="row">
     <!-- Card para Tipos de Plazo -->
     <div class="col-md-6">
@@ -42,7 +44,6 @@
                         <thead class="bg-primary">
                             <tr>
                                 <th>Nombre</th>
-                                <th>Días</th>
                                 <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
@@ -51,7 +52,7 @@
                             @foreach($plazos as $plazo)
                             <tr>
                                 <td>{{ $plazo->nombre }}</td>
-                                <td>{{ $plazo->dias }}</td>
+
                                 <td>
                                     <span class="badge badge-{{ $plazo->estado ? 'success' : 'danger' }}">
                                         {{ $plazo->estado ? 'Activo' : 'Inactivo' }}
@@ -171,8 +172,38 @@
 @stop
 
 @section('js')
+<!-- Toastr CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+<!-- jQuery -->
+
+
+<!-- Toastr JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
 <script>
     $(document).ready(function() {
+        // Mostrar mensaje si existe en sessionStorage
+        if (sessionStorage.getItem('toastMessage')) {
+            const type = sessionStorage.getItem('toastType') || 'success';
+            const message = sessionStorage.getItem('toastMessage');
+            toastr[type](message);
+            sessionStorage.removeItem('toastMessage');
+            sessionStorage.removeItem('toastType');
+        }
+
+        // Editar plazo
+        $(document).on('submit', '#editPlazoForm', function() {
+            sessionStorage.setItem('toastMessage', 'Plazo actualizado correctamente');
+            sessionStorage.setItem('toastType', 'success');
+        });
+
+        // Editar interés
+        $(document).on('submit', '#editInteresForm', function() {
+            sessionStorage.setItem('toastMessage', 'Interés actualizado correctamente');
+            sessionStorage.setItem('toastType', 'success');
+        });
+
         // Editar plazo
         $('.edit-plazo').click(function() {
             let id = $(this).data('id');
@@ -199,6 +230,8 @@
                 </form>
             `);
                 $('#editModal').modal('show');
+            }).fail(function() {
+                toastr.error("Error al cargar el plazo");
             });
         });
 
@@ -208,7 +241,7 @@
             $.get(`/intereses/${id}/edit`, function(data) {
                 let plazosOptions = '';
                 @foreach($plazos as $plazo)
-                plazosOptions += `<option value="{{ $plazo->id }}" ${data.tipo_plazo_id == {{ $plazo->id }} ? 'selected' : ''}>{{ $plazo->nombre }} ({{ $plazo->dias }} días)</option>`;
+                plazosOptions += `<option value="{{ $plazo->id }}" ${data.tipo_plazo_id == {{ $plazo->id }} ? 'selected' : ''}>{{ $plazo->nombre }}</option>`;
                 @endforeach
 
                 $('#modalContent').html(`
@@ -224,13 +257,13 @@
                     </div>
                     <div class="form-group">
                         <label>Tasa %</label>
-                        <input type="number" step="0.01" name="tasa" class="form-control" value="${data.tasa_interes}" required>
+                        <input type="number" step="0.01" name="tasa_interes" class="form-control" value="${data.tasa_interes}" required>
                     </div>
                     <div class="form-group">
                         <label>Estado</label>
                         <select name="estado" class="form-control">
-                            <option value="1" ${data.estado ? 'selected' : ''}>Activo</option>
-                            <option value="0" ${!data.estado ? 'selected' : ''}>Inactivo</option>
+                            <option value="activo" ${data.estado ? 'selected' : ''}>Activo</option>
+                            <option value="inactivo" ${!data.estado ? 'selected' : ''}>Inactivo</option>
                         </select>
                     </div>
                     <div class="modal-footer">
@@ -240,6 +273,8 @@
                 </form>
             `);
                 $('#editModal').modal('show');
+            }).fail(function() {
+                toastr.error("Error al cargar el interés");
             });
         });
 
@@ -254,7 +289,12 @@
                         _token: '{{ csrf_token() }}'
                     },
                     success: function() {
+                        sessionStorage.setItem('toastMessage', 'Estado del plazo actualizado');
+                        sessionStorage.setItem('toastType', 'success');
                         location.reload();
+                    },
+                    error: function() {
+                        toastr.error("Error al cambiar el estado del plazo");
                     }
                 });
             }
@@ -271,11 +311,27 @@
                         _token: '{{ csrf_token() }}'
                     },
                     success: function() {
+                        sessionStorage.setItem('toastMessage', 'Estado del interés actualizado');
+                        sessionStorage.setItem('toastType', 'success');
                         location.reload();
+                    },
+                    error: function() {
+                        toastr.error("Error al cambiar el estado del interés");
                     }
                 });
             }
         });
     });
+    @if(session('success'))
+    toastr.success("{{ session('success') }}");
+    @endif
+
+    @if(session('error'))
+    toastr.error("{{ session('error') }}");
+    @endif
+
+    @if($errors -> any())
+    toastr.error("Hay errores en el formulario. Por favor verifique.");
+    @endif
 </script>
 @stop
