@@ -25,7 +25,19 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected function redirectTo()
+    {
+        $user = auth()->user();
+
+        if ($user->hasRole('Prestamista')) {
+            return '/home'; // Dashboard del prestamista
+        } elseif ($user->hasRole('Cliente')) {
+            return '/mis-prestamos'; // Dashboard del cliente
+        }
+
+        // Ruta por defecto si no coincide el rol
+        return '/';
+    }
 
     /**
      * Create a new controller instance.
