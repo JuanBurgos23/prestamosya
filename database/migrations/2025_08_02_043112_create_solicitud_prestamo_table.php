@@ -18,8 +18,9 @@ return new class extends Migration
             $table->float('monto_solicitado');
             $table->text('destino_prestamo')->nullable(); // opcional
             $table->string('tipo_prestamo')->nullable();
-            $table->string('tipo_plazo')->nullable();
+            $table->foreignId('id_tipo_plazo')->nullable()->constrained('tipo_plazo')->onDelete('cascade');
             $table->integer('cantidad_plazo')->nullable();
+            $table->mediumText('firma_digital')->nullable();
             $table->string('estado')->default('pendiente');
             $table->foreign('id_cliente')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('id_prestamista')->references('id')->on('users')->onDelete('cascade');

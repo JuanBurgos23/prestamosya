@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\SolicitudPrestamo;
 use App\Http\Controllers\Controller;
 use App\Models\Interes;
+use App\Models\TipoPlazo;
 
 class PrestamoController extends Controller
 {
@@ -19,7 +20,7 @@ class PrestamoController extends Controller
     {
         $query = Prestamo::with(['cliente', 'pagos'])
             ->where('id_prestamista', auth()->id())
-            ->orderBy('fecha_vencimiento', 'asc');
+            ->orderBy('fecha_vencimiento', 'desc');
 
         // Filtros
         if ($request->estado) {
@@ -73,7 +74,6 @@ class PrestamoController extends Controller
      */
     public function create(Request $request)
     {
-
         $cliente_id = $request->cliente_id;
         $solicitud_id = $request->solicitud_id;
         $interes = Interes::where('estado', 'activo')->first();
@@ -91,9 +91,11 @@ class PrestamoController extends Controller
 
         $clientes = Cliente::all();
 
-        return view('prestamos.create', compact('cliente', 'clientes', 'solicitud'));
-    }
+        // 🔹 Traer todos los tipos de plazo con su interés relacionado
+        $tiposPlazo = TipoPlazo::with('interesActivo')->get();
 
+        return view('prestamos.create', compact('cliente', 'clientes', 'solicitud', 'interes', 'tiposPlazo'));
+    }
 
 
     /**
@@ -106,14 +108,34 @@ class PrestamoController extends Controller
             'id_prestamista' => 'required|exists:users,id',
             'monto_aprobado' => 'required|numeric',
             'plazo' => 'required|integer',
-            'tipo_plazo' => 'required|string',
+            'id_tipo_plazo' => 'required|exists:tipo_plazo,id',
             'fecha_inicio' => 'required|date',
             'fecha_vencimiento' => 'required|date|after_or_equal:fecha_inicio',
+            'id_interes' => 'required|exists:interes,id',
+            // Puedes validar opcionalmente estos nuevos campos si quieres:
+            'monto_total_pagar' => 'nullable|numeric',
+            'interes_total' => 'nullable|numeric',
+            'cuota_estimada' => 'nullable|numeric',
             // 'comentario' => 'nullable|string',
         ]);
 
         $prestamo = new Prestamo($validated);
-        $prestamo->comentario = $request->comentario;
+        $prestamo->comentario = $request->comentario ?? null;
+
+        // Asegurarte que estas columnas existan en la tabla prestamos
+        if ($request->filled('monto_total_pagar')) {
+            $prestamo->monto_total_pagar = $request->monto_total_pagar;
+        }
+        if ($request->filled('interes_total')) {
+            $prestamo->interes_total = $request->interes_total;
+        }
+        if ($request->filled('cuota_estimada')) {
+            $prestamo->cuota_estimada = $request->cuota_estimada;
+        }
+
+        // Asignar tasa/interés y tipo plazo
+        $prestamo->id_interes = $request->id_interes;
+        $prestamo->id_tipo_plazo = $request->id_tipo_plazo;
 
         if ($request->has('id_solicitud')) {
             $solicitud = SolicitudPrestamo::findOrFail($request->id_solicitud);
@@ -128,7 +150,6 @@ class PrestamoController extends Controller
     }
 
 
-
     public function misPrestamos()
     {
         // Obtener el cliente autenticado (asumiendo que el usuario tiene un cliente asociado)
@@ -141,18 +162,8 @@ class PrestamoController extends Controller
         // Obtener préstamos activos
         $prestamosActivos = Prestamo::where('id_cliente', $cliente->id)
             ->where('estado', 'activo')
-            ->with(['pagos'])
-            ->get()
-            ->map(function ($prestamo) {
-                // Agregar atributos calculados
-                $prestamo->monto_pagado = $prestamo->monto_pagado;
-                $prestamo->interes_pagado = $prestamo->interes_pagado;
-                $prestamo->saldo_pendiente = $prestamo->saldo_pendiente;
-                $prestamo->porcentaje_pagado = $prestamo->porcentaje_pagado;
-                $prestamo->proximo_pago = $prestamo->proximo_pago;
-                $prestamo->monto_cuota = $prestamo->monto_cuota;
-                return $prestamo;
-            });
+            ->with(['pagos', 'interes'])
+            ->get();
 
         // Obtener préstamos finalizados
         $prestamosFinalizados = Prestamo::where('id_cliente', $cliente->id)
@@ -160,8 +171,7 @@ class PrestamoController extends Controller
             ->with(['pagos'])
             ->get()
             ->map(function ($prestamo) {
-                $prestamo->monto_pagado = $prestamo->monto_pagado;
-                $prestamo->interes_pagado = $prestamo->interes_pagado;
+                // Para finalizados, porcentaje pagado 100%
                 $prestamo->porcentaje_pagado = 100;
                 return $prestamo;
             });

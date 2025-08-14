@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('interes', function (Blueprint $table) {
+        Schema::create('documento', function (Blueprint $table) {
             $table->id();
-            $table->float('tasa_interes');
-            $table->string('estado')->nullable();
-            $table->foreignId('id_tipo_plazo')->constrained('tipo_plazo');
+            $table->string('nombre')->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('interes');
+        Schema::dropIfExists('documento');
     }
 };

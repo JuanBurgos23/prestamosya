@@ -98,21 +98,7 @@
                             @enderror
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="interes">Interes %</label>
-                            <input type="text"
-                                class="form-control @error('interes') is-invalid @enderror"
-                                id="interes" name="interes"
-                                value="{{ old('interes', $interes?->tasa_interes) }}"
-                                placeholder="Ingrese el interés">
-                            @error('interes')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                            @enderror
-                        </div>
-                    </div>
+                    
                 </div>
                 <div class="row">
                     <div class="col-md-6">

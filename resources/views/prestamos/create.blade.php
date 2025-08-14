@@ -268,7 +268,7 @@
                                                 <div class="col mr-2">
                                                     <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                                         Motivo</div>
-                                                    <div class="h6 mb-0 text-gray-800">{{ $solicitud->comentario }}</div>
+                                                    <div class="h6 mb-0 text-gray-800">{{ $solicitud->destino_prestamo }}</div>
                                                 </div>
                                                 <div class="col-auto">
                                                     <i class="fas fa-comment-alt fa-2x text-gray-300"></i>
@@ -335,6 +335,24 @@
                                 </div>
                                 @endforeach
                             </div>
+                            <h4 class="section-title">Firma del Solicitante</h4>
+                            <div class="row mb-3">
+                                <div class="col-md-3 col-6">
+                                    <div class="card shadow-sm border-0 text-center h-100" style="min-height:140px;">
+                                        <div class="card-body p-2 d-flex flex-column align-items-center justify-content-center">
+                                            @if($solicitud->firma_digital)
+                                            <a href="{{ asset('storage/' . $solicitud->firma_digital) }}" target="_blank">
+                                                <img src="{{ asset('storage/' . $solicitud->firma_digital) }}"
+                                                    alt="Firma"
+                                                    style="width:100%; max-height:120px; object-fit:contain; border-radius:8px; border:1px solid #ddd;">
+                                            </a>
+                                            @else
+                                            <span class="text-muted">Sin firma registrada</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         @endif
                         {{-- === SECCIÓN CAMPOS DEL PRÉSTAMO A REGISTRAR === --}}
@@ -345,7 +363,7 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label class="font-weight-bold">Monto Aprobado (Bs.)</label>
+                                        <label class="font-weight-bold">Monto Solicitado (Bs.)</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
@@ -361,19 +379,32 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-percent"></i></span>
                                             </div>
-                                            <input type="number" name="interes" step="0.01" class="form-control form-control-custom" required id="tasaInteres">
+                                            <input type="number" name="interes" step="0.01" class="form-control form-control-custom"
+                                                required id="tasaInteres"
+                                                value="{{ isset($solicitud) && $solicitud->tipoPlazo && $solicitud->tipoPlazo->interesActivo 
+                                                ? $solicitud->tipoPlazo->interesActivo->tasa_interes 
+                                                : old('interes') }}"
+                                                readonly>
+                                            <input type="hidden" name="id_interes" id="idInteresHidden" value="{{ $interes->id ?? '' }}">
                                         </div>
                                     </div>
 
                                     <div class="form-group">
                                         <label class="font-weight-bold">Plazo</label>
                                         <div class="input-group">
-                                            <input type="number" name="plazo" class="form-control form-control-custom" required id="plazo">
+                                            <input type="number" name="plazo" class="form-control form-control-custom" required id="plazo"
+                                                value="{{ isset($solicitud) ? $solicitud->cantidad_plazo : old('plazo') }}">
                                             <div class="input-group-append">
-                                                <select name="tipo_plazo" class="form-control form-control-custom" required id="tipoPlazo">
-                                                    <option value="diario">Días</option>
-                                                    <option value="semanal">Semanas</option>
-                                                    <option value="mensual">Meses</option>
+                                                <select name="id_tipo_plazo" class="form-control form-control-custom" required id="tipoPlazo">
+                                                    @foreach ($tiposPlazo as $tipo)
+                                                    <option value="{{ $tipo->id }}"
+                                                        data-nombre="{{ $tipo->nombre }}"
+                                                        data-tasa="{{ $tipo->interesActivo->tasa_interes ?? 0 }}"
+                                                        data-id-interes="{{ $tipo->interesActivo->id ?? '' }}"
+                                                        {{ (old('id_tipo_plazo') ?? ($solicitud->id_tipo_plazo ?? '')) == $tipo->id ? 'selected' : '' }}>
+                                                        {{ ucfirst($tipo->nombre) }}
+                                                    </option>
+                                                    @endforeach
                                                 </select>
                                             </div>
                                         </div>
@@ -385,7 +416,8 @@
                                         <label class="font-weight-bold">Fecha de Inicio</label>
                                         <div class="input-group date" id="fechaInicio" data-target-input="nearest">
                                             <input type="text" name="fecha_inicio" class="form-control form-control-custom datetimepicker-input"
-                                                data-target="#fechaInicio" required id="fechaInicioInput" />
+                                                data-target="#fechaInicio" required id="fechaInicioInput"
+                                                value="{{ isset($solicitud) ? $solicitud->created_at->format('d/m/Y') : old('fecha_inicio') }}" />
                                             <div class="input-group-append" data-target="#fechaInicio" data-toggle="datetimepicker">
                                                 <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                             </div>
@@ -396,7 +428,7 @@
                                         <label class="font-weight-bold">Fecha de Vencimiento</label>
                                         <div class="input-group date" id="fechaVencimiento" data-target-input="nearest">
                                             <input type="text" name="fecha_vencimiento" class="form-control form-control-custom datetimepicker-input"
-                                                data-target="#fechaVencimiento" required id="fechaVencimientoInput" readonly />
+                                                data-target="#fechaVencimiento" required id="fechaVencimientoInput" readonly>
                                             <div class="input-group-append" data-target="#fechaVencimiento" data-toggle="datetimepicker">
                                                 <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                             </div>
@@ -418,17 +450,22 @@
                                             <div class="row text-center">
                                                 <div class="col-md-4">
                                                     <div class="font-weight-bold text-gray-800">Monto Total a Pagar</div>
-                                                    <div class="h4 text-primary" id="montoTotal">0.00 Bs.</div>
+                                                    <div class="h4 text-primary" name="monto_total_pagar" id="montoTotal">0.00 Bs.</div>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <div class="font-weight-bold text-gray-800">Interés Total</div>
-                                                    <div class="h4 text-info" id="interesTotal">0.00 Bs.</div>
+                                                    <div class="h4 text-info" name="interes_total" id="interesTotal">0.00 Bs.</div>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <div class="font-weight-bold text-gray-800">Cuota Estimada</div>
-                                                    <div class="h4 text-success" id="cuotaEstimada">0.00 Bs.</div>
+                                                    <div class="h5 text-success" id="cuotaCapitalDetalle">capital = 0.00 Bs.</div>
+                                                    <div class="h5 text-info" id="cuotaInteresDetalle">interés = 0.00 Bs.</div>
+                                                    <div class="h4 text-primary" name="cuota_estimada" id="cuotaTotalDetalle">total = 0.00 Bs./mensual</div>
                                                 </div>
                                             </div>
+                                            <input type="hidden" name="monto_total_pagar" id="montoTotalInput" value="0">
+                                            <input type="hidden" name="interes_total" id="interesTotalInput" value="0">
+                                            <input type="hidden" name="cuota_estimada" id="cuotaEstimadaInput" value="0">
                                         </div>
                                     </div>
                                 </div>
@@ -458,8 +495,8 @@
 
 <script>
     $(document).ready(function() {
-        // Inicializar datepicker con formato amigable para el usuario
-        $('#fechaInicio').datepicker({
+        // Inicializar datepickers en los inputs
+        $('#fechaInicioInput').datepicker({
             format: 'dd/mm/yyyy',
             language: 'es',
             autoclose: true,
@@ -467,59 +504,106 @@
             startDate: new Date()
         });
 
-        $('#fechaVencimiento').datepicker({
+        $('#fechaVencimientoInput').datepicker({
             format: 'dd/mm/yyyy',
             language: 'es',
             autoclose: true
         });
 
-        // Evento para recalcular fecha de vencimiento
+        // Al cambiar fecha inicio, plazo o tipo plazo, recalcular vencimiento y resumen
         $('#plazo, #tipoPlazo, #fechaInicioInput').on('change keyup', function() {
             calcularVencimiento();
             calcularResumen();
         });
 
-        // Calcular resumen cuando cambian montos o intereses
+        // Recalcular resumen cuando cambian monto o tasa
         $('#montoAprobado, #tasaInteres').on('keyup change', function() {
             calcularResumen();
         });
 
-        // Función para calcular fecha de vencimiento
+        // Actualizar tasa al cambiar tipo plazo
+        // Al cambiar tipo plazo
+        $('#tipoPlazo').on('change', function() {
+            const opcionSeleccionada = $(this).find('option:selected');
+            const idInteres = opcionSeleccionada.data('id-interes') || '';
+            const tasa = opcionSeleccionada.data('tasa') || 0;
+            const nombreTipo = opcionSeleccionada.data('nombre') || '';
+
+            $('#idInteresHidden').val(idInteres);
+            $('#tasaInteres').val(tasa.toFixed(2));
+
+            calcularResumen();
+        });
+
+
+        // Inicializa tasa al cargar
+        const tasaInicial = $('#tipoPlazo').find('option:selected').data('tasa') || 0;
+        $('#tasaInteres').val(tasaInicial.toFixed(2));
+
+        // Calcular resumen y vencimiento inicial
+        calcularVencimiento();
+        calcularResumen();
+
+        // Función calcular fecha vencimiento
         function calcularVencimiento() {
             const plazo = parseInt($('#plazo').val()) || 0;
-            const tipoPlazo = $('#tipoPlazo').val();
+            const tipoPlazo = ($('#tipoPlazo option:selected').data('nombre') || '').toLowerCase();
             const fechaInicio = $('#fechaInicioInput').val();
 
-            if (fechaInicio && plazo > 0) {
-                // Convertir fecha de texto a objeto Date
-                const dateParts = fechaInicio.split('/'); // dd/mm/yyyy
-                const startDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
-
-                let endDate = new Date(startDate);
-
-                switch (tipoPlazo) {
-                    case 'diario':
-                        endDate.setDate(startDate.getDate() + plazo);
-                        break;
-                    case 'semanal':
-                        endDate.setDate(startDate.getDate() + (plazo * 7));
-                        break;
-                    case 'mensual':
-                        endDate.setMonth(startDate.getMonth() + plazo);
-                        break;
-                }
-
-                const dd = String(endDate.getDate()).padStart(2, '0');
-                const mm = String(endDate.getMonth() + 1).padStart(2, '0');
-                const yyyy = endDate.getFullYear();
-
-                $('#fechaVencimientoInput').val(`${dd}/${mm}/${yyyy}`);
+            if (!fechaInicio || plazo <= 0) {
+                $('#fechaVencimientoInput').val('');
+                return;
             }
+
+            const partes = fechaInicio.split('/');
+            if (partes.length !== 3) {
+                $('#fechaVencimientoInput').val('');
+                return;
+            }
+
+            const startDate = new Date(partes[2], partes[1] - 1, partes[0]);
+            let endDate = new Date(startDate);
+
+            switch (tipoPlazo) {
+                case 'diario':
+                    endDate.setDate(endDate.getDate() + plazo);
+                    break;
+                case 'semanal':
+                    endDate.setDate(endDate.getDate() + plazo * 7);
+                    break;
+                case 'quincenal':
+                    endDate.setDate(endDate.getDate() + plazo * 15);
+                    break;
+                case 'mensual':
+                    endDate.setMonth(endDate.getMonth() + plazo);
+                    break;
+                case 'anual':
+                    endDate.setFullYear(endDate.getFullYear() + plazo);
+                    break;
+                default:
+                    // Por defecto mensual
+                    endDate.setMonth(endDate.getMonth() + plazo);
+            }
+
+            const dd = String(endDate.getDate()).padStart(2, '0');
+            const mm = String(endDate.getMonth() + 1).padStart(2, '0');
+            const yyyy = endDate.getFullYear();
+
+            $('#fechaVencimientoInput').val(`${dd}/${mm}/${yyyy}`);
         }
 
-        // Función para convertir fecha a formato MySQL
+        // Función para convertir fecha a formato MySQL antes de enviar formulario
+        $('form').on('submit', function() {
+            const fechaInicio = $('#fechaInicioInput').val();
+            const fechaVencimiento = $('#fechaVencimientoInput').val();
+
+            $('#fechaInicioInput').val(convertirFechaAFormatoMySQL(fechaInicio));
+            $('#fechaVencimientoInput').val(convertirFechaAFormatoMySQL(fechaVencimiento));
+        });
+
         function convertirFechaAFormatoMySQL(fecha) {
-            const partes = fecha.split('/'); // dd/mm/yyyy
+            const partes = fecha.split('/');
+            if (partes.length !== 3) return fecha;
             return `${partes[2]}-${partes[1]}-${partes[0]}`;
         }
 
@@ -532,27 +616,109 @@
             $('#fechaVencimientoInput').val(convertirFechaAFormatoMySQL(fechaVencimiento));
         });
 
-        // Función para calcular resumen del préstamo
+        $(document).ready(function() {
+            // Inicializa con el valor correcto la tasa (por si viene seleccionado)
+            const opcionSeleccionada = $('#tipoPlazo').find('option:selected');
+            const tasaInicial = opcionSeleccionada.data('tasa') || 0;
+            const idInteresInicial = opcionSeleccionada.data('id-interes') || '';
+
+            $('#tasaInteres').val(tasaInicial.toFixed(2));
+            $('#idInteresHidden').val(idInteresInicial);
+
+            // Recalcular resumen al cargar la página
+            calcularResumen();
+
+            // El resto de eventos para recalcular...
+        });
+
         function calcularResumen() {
             const monto = parseFloat($('#montoAprobado').val()) || 0;
-            const interes = parseFloat($('#tasaInteres').val()) || 0;
-            const plazo = parseInt($('#plazo').val()) || 0;
+            const tasaInteresMensual = parseFloat($('#tasaInteres').val()) || 0;
+            const plazo = parseInt($('#plazo').val()) || 1;
+            const tipoPlazo = ($('#tipoPlazo option:selected').data('nombre') || '').toLowerCase();
 
-            if (monto > 0 && interes > 0 && plazo > 0) {
-                const interesDecimal = interes / 100;
-                const interesTotal = monto * interesDecimal;
-                const montoTotal = monto + interesTotal;
-                const cuotaEstimada = montoTotal / plazo;
-
-                $('#interesTotal').text(interesTotal.toFixed(2) + ' Bs.');
-                $('#montoTotal').text(montoTotal.toFixed(2) + ' Bs.');
-                $('#cuotaEstimada').text(cuotaEstimada.toFixed(2) + ' Bs.');
-            } else {
-                $('#interesTotal').text('0.00 Bs.');
-                $('#montoTotal').text('0.00 Bs.');
-                $('#cuotaEstimada').text('0.00 Bs.');
+            let mesesEquivalentes = 0;
+            switch (tipoPlazo) {
+                case 'diario':
+                    mesesEquivalentes = plazo / 30;
+                    break;
+                case 'semanal':
+                    mesesEquivalentes = plazo / 4.3;
+                    break;
+                case 'quincenal':
+                    mesesEquivalentes = plazo / 2;
+                    break;
+                case 'mensual':
+                    mesesEquivalentes = plazo;
+                    break;
+                case 'anual':
+                    mesesEquivalentes = plazo * 12;
+                    break;
+                default:
+                    mesesEquivalentes = plazo;
             }
+            if (mesesEquivalentes === 0) mesesEquivalentes = 1;
+
+            const capitalMensual = monto / mesesEquivalentes;
+            const interesMensual = monto * (tasaInteresMensual / 100);
+            const cuotaMensual = capitalMensual + interesMensual;
+
+            let cuotaCapital = 0,
+                cuotaInteres = 0,
+                cuotaTotal = 0;
+
+            switch (tipoPlazo) {
+                case 'diario':
+                    cuotaCapital = capitalMensual / 30;
+                    cuotaInteres = interesMensual / 30;
+                    cuotaTotal = cuotaCapital + cuotaInteres;
+                    break;
+                case 'semanal':
+                    cuotaCapital = capitalMensual / 4.3;
+                    cuotaInteres = interesMensual / 4.3;
+                    cuotaTotal = cuotaCapital + cuotaInteres;
+                    break;
+                case 'quincenal':
+                    // CORRECCIÓN: calcular cuota correcta por quincena sin dividir de más
+                    cuotaCapital = monto / plazo; // capital por quincena
+                    cuotaInteres = monto * (tasaInteresMensual / 100); // interés por quincena
+                    cuotaTotal = cuotaCapital + cuotaInteres;
+                    break;
+                case 'mensual':
+                    cuotaCapital = capitalMensual;
+                    cuotaInteres = interesMensual;
+                    cuotaTotal = cuotaCapital + cuotaInteres;
+                    break;
+                case 'anual':
+                    // Interés anual sobre monto total
+                    cuotaCapital = monto / plazo; // capital por año
+                    cuotaInteres = monto * (tasaInteresMensual / 100); // interés anual
+                    cuotaTotal = cuotaCapital + cuotaInteres;
+                    break;
+                default:
+                    cuotaCapital = capitalMensual;
+                    cuotaInteres = interesMensual;
+                    cuotaTotal = cuotaCapital + cuotaInteres;
+            }
+
+            const totalPagar = cuotaTotal * plazo;
+            const interesTotal = (tipoPlazo === 'anual') ? cuotaInteres * plazo : interesMensual * mesesEquivalentes;
+
+            $('#interesTotal').text(interesTotal.toFixed(2) + ' Bs.');
+            $('#montoTotal').text(totalPagar.toFixed(2) + ' Bs.');
+            $('#cuotaCapital').text(cuotaCapital.toFixed(2) + ' Bs./' + tipoPlazo);
+            $('#cuotaInteres').text(cuotaInteres.toFixed(2) + ' Bs./' + tipoPlazo);
+            $('#cuotaEstimada').text(cuotaTotal.toFixed(2) + ' Bs./' + tipoPlazo);
+            $('#cuotaCapitalDetalle').text('capital = ' + cuotaCapital.toFixed(2) + ' Bs.');
+            $('#cuotaInteresDetalle').text('interés = ' + cuotaInteres.toFixed(2) + ' Bs.');
+            $('#cuotaTotalDetalle').text('total = ' + cuotaTotal.toFixed(2) + ' Bs./' + tipoPlazo);
+
+            $('#montoTotalInput').val(totalPagar.toFixed(2));
+            $('#interesTotalInput').val(interesTotal.toFixed(2));
+            $('#cuotaEstimadaInput').val(cuotaTotal.toFixed(2));
         }
+
+
 
         // Formatear inputs numéricos
         $('[name="monto_aprobado"], [name="interes"]').on('blur', function() {

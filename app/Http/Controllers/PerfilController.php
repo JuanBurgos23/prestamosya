@@ -28,7 +28,6 @@ class PerfilController extends Controller
             'password' => 'nullable|string|min:8|confirmed',
             'avatar'   => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'qr'       => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'interes'  => 'required|numeric|min:0'
         ]);
 
         // Actualizar datos básicos
@@ -57,13 +56,6 @@ class PerfilController extends Controller
             $user->qr = $request->file('qr')->store('usuarios/qr', 'public');
         }
 
-        // Guardar interés (solo uno activo)
-        Interes::where('estado', 'activo')->update(['estado' => 'inactivo']);
-
-        Interes::create([
-            'tasa_interes'  => $request->interes,
-            'estado' => 'activo'
-        ]);
 
         $user->save();
 

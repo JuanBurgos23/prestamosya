@@ -338,33 +338,35 @@
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="form-label">Plazo de Pago</label>
+                                <label for="plazoValue">Duración del Préstamo</label>
                                 <div class="row">
                                     <div class="col-md-8">
-                                        <input type="range" class="form-control-range custom-range" min="1" max="60"
-                                            value="12" id="plazoRange" oninput="updatePlazoValue(this.value)">
+                                        <input type="range" class="form-control-range custom-range" id="plazoRange" min="1" max="60" value="12" oninput="updatePlazoValue(this.value)">
                                     </div>
                                     <div class="col-md-4">
-                                        <input type="number" class="form-control form-control-bank text-center"
-                                            name="plazo" id="plazoValue" value="12" min="1" max="60"
-                                            onchange="updatePlazoRange(this.value)" required>
+                                        <input type="number" class="form-control text-center" id="plazoValue" name="plazo" min="1" max="60" value="12" onchange="updatePlazoRange(this.value)" required>
                                     </div>
                                 </div>
                                 <div class="d-flex justify-content-between mt-1">
-                                    <small>1 mes</small>
-                                    <small>60 meses</small>
+                                    <small id="plazoMinLabel">1 mes</small>
+                                    <small id="plazoMaxLabel">60 meses</small>
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Tipo de Plazo</label>
-                                <select class="form-control form-control-bank" name="tipo_plazo" required>
-                                    <option value="mensual" selected>Mensual</option>
-                                    <option value="quincenal">Quincenal</option>
-                                    <option value="semanal">Semanal</option>
+                                <select class="form-control form-control-bank" name="id_tipo_plazo" id="tipoPlazoSelect" required>
+                                    @foreach($tiposPlazo as $tipo)
+                                    <option value="{{ $tipo->id }}"
+                                        data-tasa="{{ $tipo->interesActivo->tasa_interes ?? 0 }}"
+                                        data-nombre="{{ strtolower($tipo->nombre) }}"
+                                        {{ strtolower($tipo->nombre) == 'mensual' ? 'selected' : '' }}>
+                                        {{ $tipo->nombre }}
+                                    </option>
+                                    @endforeach
                                 </select>
+                                <small class="text-muted">Ejemplo: Si eliges "diario" y pones 30, significa que pagarás en 30 días.</small>
                             </div>
-
                             <div class="form-group">
                                 <label class="form-label">Destino del Préstamo</label>
                                 <textarea class="form-control form-control-bank" name="destino_prestamo"
@@ -381,7 +383,7 @@
                         </div>
                         <div class="summary-item">
                             <span class="summary-label">Tasa de interés estimada:</span>
-                            <span class="summary-value" id="resumenInteres">12.5% anual</span>
+                            <span class="summary-value" id="resumenInteres"></span>
                         </div>
                         <div class="summary-item">
                             <span class="summary-label">Plazo:</span>
@@ -389,7 +391,9 @@
                         </div>
                         <div class="summary-item">
                             <span class="summary-label">Cuota estimada:</span>
-                            <span class="summary-value" id="resumenCuota">0.00 Bs./mes</span>
+                            <div id="resumenCuotaCapital" class="summary-value">capital = 0.00 Bs.</div>
+                            <div id="resumenCuotaInteres" class="summary-value">interés = 0.00 Bs.</div>
+                            <div id="resumenCuotaTotal" class="summary-value">total = 0.00 Bs./mes</div>
                         </div>
                         <div class="summary-item summary-total">
                             <span>Total a pagar:</span>
@@ -595,7 +599,7 @@
                                 </div>
                                 <div class="summary-item">
                                     <span class="summary-label">Correo electrónico:</span>
-                                    <span class="summary-value" id="confirmEmail">{{ $cliente->correo }}</span>
+                                    <span class="summary-value" id="confirmEmail">{{ $cliente->user->email }}</span>
                                 </div>
                             </div>
                         </div>
@@ -679,6 +683,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.es.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
 <script>
+<<<<<<< HEAD
     document.addEventListener('DOMContentLoaded', function () {
         // Helpers de existencia para evitar que el script se rompa si no cargaste librerías
         const hasjQuery = typeof window.$ === 'function';
@@ -693,6 +698,207 @@
                 language: 'es',
                 autoclose: true,
                 endDate: '0d'
+=======
+    $(document).ready(function() {
+        // Inicializar datepicker
+        $('.datepicker').datepicker({
+            format: 'dd/mm/yyyy',
+            language: 'es',
+            autoclose: true,
+            endDate: '0d'
+        });
+
+        // Actualizar resumen cuando cambian los valores
+        $('#montoSolicitado, #plazoValue, [name="tipo_plazo"]').on('change keyup', function() {
+            actualizarResumen();
+        });
+
+        // Inicializar el resumen
+        actualizarResumen();
+
+        // Manejar la subida de archivos
+        $('#documentoIdentidad').change(function() {
+            $('#documentoIdentidadName').text(this.files[0] ? this.files[0].name : 'No se ha seleccionado archivo');
+        });
+        $('#comprobanteDomicilio').change(function() {
+            $('#comprobanteDomicilioName').text(this.files[0] ? this.files[0].name : 'No se ha seleccionado archivo');
+        });
+        $('#comprobanteIngresos').change(function() {
+            $('#comprobanteIngresosName').text(this.files[0] ? this.files[0].name : 'No se ha seleccionado archivo');
+        });
+        $('#otrosDocumentos').change(function() {
+            if (this.files.length > 0) {
+                const names = Array.from(this.files).map(f => f.name).join(', ');
+                $('#otrosDocumentosName').text(names);
+            } else {
+                $('#otrosDocumentosName').text('No se ha seleccionado archivo');
+            }
+        });
+
+        // Inicializar el pad de firma
+        var canvas = document.getElementById('signaturePad');
+        var signaturePad = new SignaturePad(canvas, {
+            backgroundColor: 'rgb(255, 255, 255)',
+            penColor: 'rgb(0, 0, 0)'
+        });
+
+        $('#clearSignature').click(function() {
+            signaturePad.clear();
+        });
+
+        // Guardar la firma cuando se envíe el formulario
+        $('#loanApplicationForm').submit(function() {
+            if (signaturePad.isEmpty()) {
+                alert('Por favor proporcione su firma electrónica');
+                return false;
+            } else {
+                $('#firmaElectronica').val(signaturePad.toDataURL());
+            }
+        });
+    });
+
+    function actualizarResumen() {
+        const monto = parseFloat($('#montoSolicitado').val()) || 0;
+        const plazo = parseInt($('#plazoValue').val()) || 1;
+
+        const tipoPlazoSelect = document.getElementById('tipoPlazoSelect');
+        const selectedOption = tipoPlazoSelect.options[tipoPlazoSelect.selectedIndex];
+        const tasaInteresMensual = Number(selectedOption.getAttribute('data-tasa')) || 0;
+        const nombreTipoPlazo = selectedOption.getAttribute('data-nombre') || '';
+
+        // Convertir plazo a meses equivalentes
+        let mesesEquivalentes = 0;
+        switch (nombreTipoPlazo) {
+            case 'diario':
+                mesesEquivalentes = plazo / 30;
+                break;
+            case 'semanal':
+                mesesEquivalentes = plazo / 4.3;
+                break;
+            case 'quincenal':
+                mesesEquivalentes = plazo / 2;
+                break;
+            case 'mensual':
+                mesesEquivalentes = plazo;
+                break;
+            case 'anual':
+                mesesEquivalentes = plazo * 12;
+                break;
+            default:
+                mesesEquivalentes = plazo;
+        }
+        if (mesesEquivalentes === 0) mesesEquivalentes = 1;
+
+        // Capital mensual y interés mensual (sobre monto)
+        const capitalMensual = monto / mesesEquivalentes;
+        const interesMensual = monto * (tasaInteresMensual / 100);
+
+        let cuotaCapital = 0;
+        let cuotaInteres = 0;
+        let cuotaTotal = 0;
+        let totalPagar = 0;
+        let unidadTexto = '';
+
+        switch (nombreTipoPlazo) {
+            case 'diario':
+                unidadTexto = 'día';
+                cuotaCapital = capitalMensual / 30;
+                cuotaInteres = interesMensual / 30;
+                cuotaTotal = cuotaCapital + cuotaInteres;
+                totalPagar = cuotaTotal * plazo;
+                break;
+            case 'semanal':
+                unidadTexto = 'semana';
+                cuotaCapital = capitalMensual / 4.3;
+                cuotaInteres = interesMensual / 4.3;
+                cuotaTotal = cuotaCapital + cuotaInteres;
+                totalPagar = cuotaTotal * plazo;
+                break;
+            case 'quinsenal':
+                unidadTexto = 'quincena';
+                // CORRECCIÓN: cálculo por quincena sin dividir de más
+                cuotaCapital = monto / plazo; // capital por quincena
+                cuotaInteres = monto * (tasaInteresMensual / 100); // interés por quincena
+                cuotaTotal = cuotaCapital + cuotaInteres;
+                totalPagar = cuotaTotal * plazo;
+                break;
+            case 'mensual':
+                unidadTexto = 'mes';
+                cuotaCapital = capitalMensual;
+                cuotaInteres = interesMensual;
+                cuotaTotal = cuotaCapital + cuotaInteres;
+                totalPagar = cuotaTotal * plazo;
+                break;
+            case 'anual':
+                unidadTexto = 'año';
+                // Interés anual sobre monto total
+                cuotaCapital = monto / plazo;
+                cuotaInteres = monto * (tasaInteresMensual / 100); // ya es anual
+                cuotaTotal = cuotaCapital + cuotaInteres;
+                totalPagar = (cuotaCapital + cuotaInteres) * plazo;
+                break;
+            default:
+                unidadTexto = '';
+                cuotaCapital = capitalMensual;
+                cuotaInteres = interesMensual;
+                cuotaTotal = cuotaCapital + cuotaInteres;
+                totalPagar = cuotaTotal * plazo;
+        }
+
+        $('#resumenMonto').text(monto.toLocaleString('es-ES', {
+            minimumFractionDigits: 2
+        }) + ' Bs.');
+        $('#resumenInteres').text(tasaInteresMensual.toFixed(2) + ' % ' + unidadTexto);
+        $('#resumenPlazo').text(plazo + ' ' + unidadTexto + (plazo > 1 ? '' : ''));
+        $('#resumenCuota').text(cuotaTotal.toFixed(2) + ' Bs./' + unidadTexto);
+        $('#resumenCuotaCapital').text('capital = ' + cuotaCapital.toFixed(2) + ' Bs.');
+        $('#resumenCuotaInteres').text('interés = ' + cuotaInteres.toFixed(2) + ' Bs.');
+        $('#resumenCuotaTotal').text('total = ' + cuotaTotal.toFixed(2) + ' Bs./' + unidadTexto);
+        $('#resumenTotal').text(totalPagar.toFixed(2) + ' Bs.');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        $('#montoSolicitado, #plazoValue, #tipoPlazoSelect').on('input change', actualizarResumen);
+        actualizarResumen();
+
+        // Actualizar al cambiar monto rápido
+        document.querySelectorAll('input[name="monto_rapido"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.getElementById('montoSolicitado').value = this.value;
+                actualizarResumen();
+            });
+        });
+    });
+
+    function updatePlazoValue(value) {
+        $('#plazoValue').val(value);
+        actualizarResumen();
+    }
+
+    function updatePlazoRange(value) {
+        $('#plazoRange').val(value);
+        actualizarResumen();
+    }
+
+    // Funciones para navegar entre pasos
+    function nextStep(current, next) {
+        // Validar campos requeridos del paso actual
+        let isValid = true;
+        $(`#step${current} [required]`).each(function() {
+            if (!$(this).val()) {
+                $(this).addClass('is-invalid');
+                isValid = false;
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+
+        if (!isValid) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Campos requeridos',
+                text: 'Por favor complete todos los campos obligatorios antes de continuar',
+>>>>>>> 6a3751f8f56f0933acd8df54ddcdb3f066dc934b
             });
         }
     
@@ -765,6 +971,7 @@
                 const clearBtn = document.getElementById('clearSignature');
                 if (clearBtn) clearBtn.addEventListener('click', () => signaturePad.clear());
             }
+<<<<<<< HEAD
         })();
     
         // ====== SUBMIT FORM: valida firma solo si hay canvas y se requiere ======
@@ -932,4 +1139,33 @@
     });
     </script>
     
+=======
+        });
+    }
+
+    // Actualizar la sección de confirmación con los datos ingresados
+    function updateConfirmation() {
+        // Aseguramos que el cálculo esté actualizado
+        actualizarResumen();
+
+        $('#confirmTipoPrestamo').text($('[name="tipo_prestamo"] option:selected').text());
+
+        $('#confirmMonto').text($('#montoSolicitado').val() ?
+            parseFloat($('#montoSolicitado').val()).toLocaleString('es-ES', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }) + ' Bs.' :
+            '-'
+        );
+
+        $('#confirmPlazo').text($('#resumenPlazo').text()); // ya formateado
+
+        // Tomamos la cuota directamente del resumen
+        $('#confirmCuota').text($('#resumenCuotaTotal').text());
+
+        $('#confirmTelefono').text($('[name="telefono"]').val());
+        $('#confirmEmail').text($('[name="correo"]').val());
+    }
+</script>
+>>>>>>> 6a3751f8f56f0933acd8df54ddcdb3f066dc934b
 @endsection
