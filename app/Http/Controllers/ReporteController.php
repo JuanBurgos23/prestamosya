@@ -16,13 +16,13 @@ class ReporteController extends Controller
 
         // Filtros
         $estadoFiltro = $request->get('estado_cartera'); // 'vigente' | 'mora' | 'todos'
-        $desde = $request->get('desde'); // fecha_inicio >=
-        $hasta = $request->get('hasta'); // fecha_inicio <=
-        $clienteId = $request->get('cliente_id'); // opcional
+        $desde = $request->get('desde');
+        $hasta = $request->get('hasta');
+        $clienteId = $request->get('cliente_id');
 
         $q = Prestamo::with(['cliente', 'pagos'])
             ->where('id_prestamista', $prestamistaId)
-            ->whereIn('estado', ['activo', 'en_mora', 'pagado', 'cancelado']); // puedes ajustar
+            ->whereIn('estado', ['activo', 'en_mora', 'pagado', 'cancelado']);
 
         if ($desde) {
             $q->whereDate('fecha_inicio', '>=', $desde);
@@ -34,43 +34,43 @@ class ReporteController extends Controller
             $q->where('id_cliente', $clienteId);
         }
 
-        // Traemos todos y calculamos estado de cartera (vigente/mora) + métricas
         $prestamos = $q->get()->map(function ($p) use ($hoy) {
-            $saldo = $p->saldo_pendiente; // accessor del modelo
+            $saldo = $p->saldo_pendiente;
 
-            // --- Parseo SEGURO del próximo pago ---
-            $px = $p->proximo_pago; // puede ser "d/m/Y", "d/m/Y (Atrasado)", "Completado", "Último pago", etc.
+            // Obtener valor del accesor
+            $px = $p->proximo_pago;
             $proximo = null;
 
+            // Evitar parsear textos como "Completado" o "Último pago"
             if ($px instanceof \Carbon\CarbonInterface) {
                 $proximo = $px;
-            } elseif (is_string($px)) {
-                // Extrae sólo la parte de fecha si comienza con dd/mm/YYYY
-                if (preg_match('/^\d{2}\/\d{2}\/\d{4}/', $px, $m)) {
-                    try {
-                        $proximo = Carbon::createFromFormat('d/m/Y', $m[0]);
-                    } catch (\Exception $e) {
-                        $proximo = null;
-                    }
+            } elseif (is_string($px) && preg_match('/^\d{2}\/\d{2}\/\d{4}/', $px, $m)) {
+                try {
+                    $proximo = Carbon::createFromFormat('d/m/Y', $m[0]);
+                } catch (\Exception $e) {
+                    $proximo = null;
                 }
             }
-            // --- fin parseo seguro ---
 
             $diasAtraso = 0;
             if ($saldo > 0 && $proximo && $hoy->gt($proximo)) {
                 $diasAtraso = $proximo->diffInDays($hoy);
             }
 
-            $p->cartera_estado = ($saldo > 0 && $proximo && $hoy->gt($proximo)) ? 'mora' : 'vigente';
+            // Determinar estado de cartera
             if ($saldo <= 0) {
                 $p->cartera_estado = 'pagado';
+            } elseif ($proximo && $hoy->gt($proximo)) {
+                $p->cartera_estado = 'mora';
+            } else {
+                $p->cartera_estado = 'vigente';
             }
 
             $p->dias_atraso = $diasAtraso;
             return $p;
         });
 
-        // Aplicar filtro por estado de cartera (opcional)
+        // Filtros por estado
         if ($estadoFiltro === 'vigente') {
             $prestamos = $prestamos->where('cartera_estado', 'vigente');
         } elseif ($estadoFiltro === 'mora') {
@@ -80,10 +80,9 @@ class ReporteController extends Controller
         }
 
         // Totales
-        $totalColocado = $prestamos->sum('monto_aprobado'); // de los filtrados
+        $totalColocado = $prestamos->sum('monto_aprobado');
         $totalSaldo = $prestamos->sum(fn($p) => $p->saldo_pendiente);
         $enMora = $prestamos->where('cartera_estado', 'mora');
-        $vigentes = $prestamos->where('cartera_estado', 'vigente');
 
         $totalMoraSaldo = $enMora->sum(fn($p) => $p->saldo_pendiente);
         $clientesEnMora = $enMora->pluck('id_cliente')->unique()->count();
@@ -99,7 +98,6 @@ class ReporteController extends Controller
             'clientesEnMora'    => $clientesEnMora,
             'cantidadPrestamos' => $cantidadPrestamos,
             'porcentajeMora'    => $porcentajeMora,
-            // filtros para mantener estado del form
             'estadoFiltro'      => $estadoFiltro,
             'desde'             => $desde,
             'hasta'             => $hasta,

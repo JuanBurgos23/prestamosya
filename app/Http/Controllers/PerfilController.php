@@ -26,7 +26,7 @@ class PerfilController extends Controller
             'email'    => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'phone'    => 'nullable|string|max:20',
             'password' => 'nullable|string|min:8|confirmed',
-            'avatar'   => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto'   => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'qr'       => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
@@ -40,10 +40,10 @@ class PerfilController extends Controller
             $user->password = Hash::make($request->password);
         }
 
-        // Avatar
+        // Foto
         if ($request->hasFile('avatar')) {
-            if ($user->imagen && Storage::exists('public/' . $user->imagen)) {
-                Storage::delete('public/' . $user->imagen);
+            if ($user->foto && Storage::exists('public/' . $user->foto)) {
+                Storage::delete('public/' . $user->foto);
             }
             $user->foto = $request->file('avatar')->store('usuarios/fotos', 'public');
         }

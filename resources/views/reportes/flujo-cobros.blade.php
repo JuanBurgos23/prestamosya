@@ -10,7 +10,7 @@
     <canvas id="flujoCobrosChart" height="100"></canvas>
 @stop
 
-
+@section('js')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     const labels = @json(array_merge($historico->pluck('mes')->toArray(), array_keys($proyeccion)));
@@ -44,4 +44,4 @@
         }
     });
 </script>
-
+@endsection

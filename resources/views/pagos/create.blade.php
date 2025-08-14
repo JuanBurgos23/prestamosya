@@ -218,14 +218,24 @@
                             <div class="qr-payment-section text-center p-4">
                                 @if($prestamo->prestamista->qr)
                                 <h6 class="mb-3">Pagar con QR</h6>
-                                <img src="{{ asset('storage/' . $prestamo->prestamista->qr) }}"
-                                    alt="QR para pagos"
-                                    class="img-fluid qr-image mb-2"
-                                    style="max-width: 180px;">
+                                <div class="mb-2">
+                                    <img src="{{ asset('storage/' . $prestamo->prestamista->qr) }}"
+                                        alt="QR para pagos"
+                                        class="img-fluid qr-image mb-2"
+                                        style="max-width: 180px;">
+                                </div>
                                 <p class="text-muted small">
                                     Escanee este código para pagar directamente<br>
                                     al prestamista {{ $prestamo->prestamista->name }}
                                 </p>
+                                <div>
+                                    <button type="button"
+                                        class="btn btn-sm btn-outline-primary"
+                                        data-toggle="modal" data-target="#qrPagoModal"
+                                        data-bs-toggle="modal" data-bs-target="#qrPagoModal">
+                                        <i class="fas fa-eye"></i> Ver
+                                    </button>
+                                </div>
                                 @else
                                 <div class="alert alert-warning small mb-0">
                                     <i class="fas fa-exclamation-circle mr-2"></i>
@@ -234,6 +244,37 @@
                                 @endif
                             </div>
                         </div>
+
+                        {{-- Modal para ver y descargar QR de pago --}}
+                        <div class="modal fade" id="qrPagoModal" tabindex="-1" aria-labelledby="qrPagoModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered text-center">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="qrPagoModalLabel">QR para Pago</h5>
+                                        <button type="button"
+                                            class="btn-close close"
+                                            data-dismiss="modal" data-bs-dismiss="modal"
+                                            aria-label="Cerrar">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        @if($prestamo->prestamista->qr)
+                                        <img src="{{ asset('storage/' . $prestamo->prestamista->qr) }}"
+                                            alt="QR para pagos"
+                                            class="img-fluid mb-3"
+                                            style="max-width: 300px;">
+                                        <a href="{{ asset('storage/' . $prestamo->prestamista->qr) }}" download class="btn btn-primary">
+                                            <i class="fas fa-download"></i> Descargar QR
+                                        </a>
+                                        @else
+                                        <p class="text-muted">No se ha generado un QR para este prestamista.</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                 </div>
                 <div class="text-right mt-4">
                     <a href="{{ route('prestamos.mis-prestamos') }}" class="btn btn-secondary mr-2">

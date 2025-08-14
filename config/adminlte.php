@@ -434,7 +434,7 @@ return [
                     'icon' => 'fas fa-user-plus',
                 ],
                 [
-                    'text' => 'Flojo de cobros',
+                    'text' => 'Flujo de cobros',
                     'url'  => 'reportes/flujo-cobros',
                     'icon' => 'fas fa-user-plus',
                 ],

@@ -335,8 +335,9 @@
                                 </div>
                                 @endforeach
                             </div>
-                            <h4 class="section-title">Firma del Solicitante</h4>
+                            <h4 class="section-title">Firma y QR del Solicitante</h4>
                             <div class="row mb-3">
+                                {{-- Firma del Solicitante --}}
                                 <div class="col-md-3 col-6">
                                     <div class="card shadow-sm border-0 text-center h-100" style="min-height:140px;">
                                         <div class="card-body p-2 d-flex flex-column align-items-center justify-content-center">
@@ -349,6 +350,66 @@
                                             @else
                                             <span class="text-muted">Sin firma registrada</span>
                                             @endif
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- QR del Solicitante --}}
+                                <div class="col-md-3 col-6">
+                                    <div class="card shadow-sm border-0 text-center h-100" style="min-height:140px;">
+                                        <div class="card-body p-2 d-flex flex-column align-items-center justify-content-center">
+                                            @if($solicitud->cliente->user->qr)
+                                            <div class="mb-2">
+                                                <img src="{{ asset('storage/' . $solicitud->cliente->user->qr) }}"
+                                                    alt="QR"
+                                                    style="width:48px; height:48px; object-fit:contain; border-radius:8px; border:1px solid #ddd;">
+                                            </div>
+                                            <div style="font-size:0.95rem; font-weight:500;" class="text-dark mb-1">
+                                                QR del Solicitante
+                                            </div>
+                                            <div>
+                                                {{-- type="button" para no enviar formularios --}}
+                                                <button type="button"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    data-toggle="modal" data-target="#qrModal"
+                                                    data-bs-toggle="modal" data-bs-target="#qrModal">
+                                                    <i class="fas fa-eye"></i> Ver
+                                                </button>
+                                            </div>
+                                            @else
+                                            <span class="text-muted">Sin QR registrado</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Modal para ver y descargar QR --}}
+                                <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered text-center">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="qrModalLabel">QR del Solicitante</h5>
+                                                {{-- Botón de cerrar compatible con BS4 y BS5 --}}
+                                                <button type="button"
+                                                    class="btn-close close"
+                                                    data-dismiss="modal" data-bs-dismiss="modal"
+                                                    aria-label="Cerrar">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                @if($solicitud->cliente->user->qr)
+                                                <img src="{{ asset('storage/' . $solicitud->cliente->user->qr) }}"
+                                                    alt="QR"
+                                                    class="img-fluid mb-3"
+                                                    style="max-width: 300px;">
+                                                <a href="{{ asset('storage/' . $solicitud->cliente->user->qr) }}" download class="btn btn-primary">
+                                                    <i class="fas fa-download"></i> Descargar QR
+                                                </a>
+                                                @else
+                                                <p class="text-muted">No se ha generado un QR para este solicitante.</p>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

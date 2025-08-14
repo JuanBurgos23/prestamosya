@@ -20,7 +20,7 @@ return new class extends Migration
             //$table->foreignId('id_documento')->constrained('documento')->onDelete('cascade')->nullable();
             $table->decimal('monto_aprobado', 10, 2);
             $table->integer('plazo');
-            $table->string('tipo_plazo');
+            $table->foreignId('id_tipo_plazo')->constrained('tipos_plazo')->onDelete('cascade');
             $table->date('fecha_inicio');
             $table->date('fecha_vencimiento');
             $table->string('estado')->default('activo');

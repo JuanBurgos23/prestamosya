@@ -44,6 +44,9 @@ Route::get('/mis-prestamos', [PrestamoController::class, 'misPrestamos'])
 Route::get('/prestamos/{id}', [PrestamoController::class, 'show'])
     ->name('prestamos.show');
 
+//detalle del prestamo desde el cliente
+Route::get('/prestamo-cliente/{id}', [PrestamoController::class, 'prestamosCliente'])->name('prestamosCliente.show');
+
 // Rutas para pagos
 Route::get('/pagos/create/{prestamo_id}', [PagoController::class, 'create'])
     ->name('pagos.create');

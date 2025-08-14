@@ -211,6 +211,17 @@ class PrestamoController extends Controller
 
         return view('prestamos.show', compact('prestamo'));
     }
+    public function prestamosCliente($id)
+    {
+        $prestamo = Prestamo::with(['cliente', 'pagos', 'pagos.prestamista'])
+            ->whereHas('cliente', function ($q) {
+                $q->where('user_id', auth()->id());
+            })
+            ->findOrFail($id);
+
+        return view('prestamos.show', compact('prestamo'));
+    }
+
 
 
     /**

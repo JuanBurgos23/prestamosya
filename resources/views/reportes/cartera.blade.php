@@ -95,8 +95,11 @@
                     <tbody>
                         @forelse($prestamos as $p)
                         @php
-                            $saldo = $p->saldo_pendiente;
-                            $proximo = $p->proximo_pago ? \Carbon\Carbon::parse($p->proximo_pago)->format('d/m/Y') : '—';
+                        $saldo = $p->saldo_pendiente;
+                        $proximo = $p->proximo_pago;
+                        if (\Carbon\Carbon::hasFormat($proximo, 'd/m/Y')) {
+                        $proximo = \Carbon\Carbon::createFromFormat('d/m/Y', $proximo)->format('d/m/Y');
+                        }
                         @endphp
                         <tr>
                             <td>{{ $p->id }}</td>
@@ -120,7 +123,9 @@
                             </td>
                         </tr>
                         @empty
-                        <tr><td colspan="9" class="text-center text-muted py-4">No hay resultados</td></tr>
+                        <tr>
+                            <td colspan="9" class="text-center text-muted py-4">No hay resultados</td>
+                        </tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -133,37 +138,58 @@
 
 @section('css')
 <style>
-.kpi-card{background:#fff;border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,.06);padding:16px;margin-bottom:12px}
-.kpi-label{font-size:.85rem;color:#7f8c8d}
-.kpi-value{font-size:1.25rem;font-weight:700;color:#2c3e50}
+    .kpi-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, .06);
+        padding: 16px;
+        margin-bottom: 12px
+    }
+
+    .kpi-label {
+        font-size: .85rem;
+        color: #7f8c8d
+    }
+
+    .kpi-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #2c3e50
+    }
 </style>
 @stop
 
 @section('js')
 <script>
-// Exportar CSV rápido desde la tabla
-document.getElementById('btnExportCsv').addEventListener('click', () => {
-    const table = document.getElementById('tablaCartera');
-    let csv = [];
-    for (let r = 0; r < table.rows.length; r++) {
-        let row = [], cols = table.rows[r].querySelectorAll('th, td');
-        for (let c = 0; c < cols.length; c++) {
-            // Evitar la última columna de acciones en export
-            if (r === 0) { // header
-                if (c === cols.length - 1) continue;
-            } else {
-                if (c === cols.length - 1) continue;
+    // Exportar CSV rápido desde la tabla
+    document.getElementById('btnExportCsv').addEventListener('click', () => {
+        const table = document.getElementById('tablaCartera');
+        let csv = [];
+        for (let r = 0; r < table.rows.length; r++) {
+            let row = [],
+                cols = table.rows[r].querySelectorAll('th, td');
+            for (let c = 0; c < cols.length; c++) {
+                // Evitar la última columna de acciones en export
+                if (r === 0) { // header
+                    if (c === cols.length - 1) continue;
+                } else {
+                    if (c === cols.length - 1) continue;
+                }
+                let text = cols[c].innerText.replace(/\s+/g, ' ').trim().replace(/"/g, '""');
+                row.push(`"${text}"`);
             }
-            let text = cols[c].innerText.replace(/\s+/g,' ').trim().replace(/"/g,'""');
-            row.push(`"${text}"`);
+            csv.push(row.join(','));
         }
-        csv.push(row.join(','));
-    }
-    const blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'reporte_cartera.csv';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-});
+        const blob = new Blob([csv.join('\n')], {
+            type: 'text/csv;charset=utf-8;'
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'reporte_cartera.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    });
 </script>
 @stop
