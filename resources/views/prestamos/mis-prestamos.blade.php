@@ -381,10 +381,9 @@
                             </div>
 
                             <div class="loan-actions">
-                                <button class="btn btn-loan-action btn-details" data-toggle="modal" data-target="#loanDetailsModal"
-                                    data-loan="{{ json_encode($prestamo) }}">
+                                <a class="btn btn-loan-action btn-details" href="{{ route('prestamos.show', $prestamo->id) }}">
                                     <i class="fas fa-eye mr-1"></i> Ver Detalles
-                                </button>
+                                </a>
                                 <a href="{{ route('pagos.create', ['prestamo_id' => $prestamo->id]) }}" class="btn btn-loan-action btn-pay">
                                     <i class="fas fa-money-bill-wave mr-1"></i> Realizar Pago
                                 </a>

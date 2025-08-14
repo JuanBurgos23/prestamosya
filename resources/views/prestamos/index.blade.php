@@ -336,7 +336,7 @@
                     <div class="loan-item mb-4 pb-4 border-bottom">
                         <div class="client-info">
                             <div class="client-avatar">
-                                {{ substr($prestamo->cliente->nombre_completo ?? 'S', 0, 1) }}
+                                {!! $prestamo->cliente->user->foto ? '<img src="' . asset('storage/' . $prestamo->cliente->user->foto) . '" alt="User Photo" class="img-fluid rounded-circle">' : substr($prestamo->cliente->nombre_completo, 0, 1) !!}
                             </div>
                             <div class="client-details">
                                 <div class="client-name">{{ $prestamo->cliente->nombre_completo ?? 'Sin nombre' }}</div>

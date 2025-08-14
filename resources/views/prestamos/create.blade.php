@@ -679,8 +679,9 @@
                     cuotaTotal = cuotaCapital + cuotaInteres;
                     break;
                 case 'quincenal':
-                    cuotaCapital = capitalMensual / 2;
-                    cuotaInteres = interesMensual / 2;
+                    // CORRECCIÓN: calcular cuota correcta por quincena sin dividir de más
+                    cuotaCapital = monto / plazo; // capital por quincena
+                    cuotaInteres = monto * (tasaInteresMensual / 100); // interés por quincena
                     cuotaTotal = cuotaCapital + cuotaInteres;
                     break;
                 case 'mensual':
@@ -689,8 +690,9 @@
                     cuotaTotal = cuotaCapital + cuotaInteres;
                     break;
                 case 'anual':
-                    cuotaCapital = capitalMensual * 12;
-                    cuotaInteres = interesMensual * 12;
+                    // Interés anual sobre monto total
+                    cuotaCapital = monto / plazo; // capital por año
+                    cuotaInteres = monto * (tasaInteresMensual / 100); // interés anual
                     cuotaTotal = cuotaCapital + cuotaInteres;
                     break;
                 default:
@@ -700,24 +702,23 @@
             }
 
             const totalPagar = cuotaTotal * plazo;
-            const interesTotal = interesMensual * mesesEquivalentes;
+            const interesTotal = (tipoPlazo === 'anual') ? cuotaInteres * plazo : interesMensual * mesesEquivalentes;
 
             $('#interesTotal').text(interesTotal.toFixed(2) + ' Bs.');
             $('#montoTotal').text(totalPagar.toFixed(2) + ' Bs.');
             $('#cuotaCapital').text(cuotaCapital.toFixed(2) + ' Bs./' + tipoPlazo);
             $('#cuotaInteres').text(cuotaInteres.toFixed(2) + ' Bs./' + tipoPlazo);
             $('#cuotaEstimada').text(cuotaTotal.toFixed(2) + ' Bs./' + tipoPlazo);
-            // Capital cuota estimada
             $('#cuotaCapitalDetalle').text('capital = ' + cuotaCapital.toFixed(2) + ' Bs.');
-            // Interés cuota estimada
             $('#cuotaInteresDetalle').text('interés = ' + cuotaInteres.toFixed(2) + ' Bs.');
-            // Cuota total estimada
             $('#cuotaTotalDetalle').text('total = ' + cuotaTotal.toFixed(2) + ' Bs./' + tipoPlazo);
 
             $('#montoTotalInput').val(totalPagar.toFixed(2));
             $('#interesTotalInput').val(interesTotal.toFixed(2));
             $('#cuotaEstimadaInput').val(cuotaTotal.toFixed(2));
         }
+
+
 
         // Formatear inputs numéricos
         $('[name="monto_aprobado"], [name="interes"]').on('blur', function() {

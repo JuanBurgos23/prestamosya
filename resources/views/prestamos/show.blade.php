@@ -193,7 +193,7 @@
                             <div class="col-md-2">
                                 <div class="text-center">
                                     <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; margin: 0 auto 10px; font-size: 1.8rem; font-weight: bold;">
-                                        {{ substr($prestamo->cliente->nombre_completo, 0, 1) }}
+                                        <img src="{{ asset('storage/' . $prestamo->cliente->user->foto) }}" alt="User Photo" class="img-fluid rounded-circle">
                                     </div>
                                     <small>ID: {{ $prestamo->cliente->id }}</small>
                                 </div>

@@ -320,20 +320,21 @@ return [
             'url' => 'admin/blog',
             'can' => 'manage-blog',
         ],
-        [
+        /*[
             'text' => 'pages',
             'url' => 'admin/pages',
             'icon' => 'far fa-fw fa-file',
             'label' => 4,
             'label_color' => 'success',
-        ],
-        ['header' => 'account_settings'],
+        ],*/
+        ['header' => 'account_settings','can'  => 'prestamista',],
         [
             'text' => 'Profile',
             'url' => '/perfil',
             'icon' => 'fas fa-fw fa-user',
+            'can'  => 'prestamista',
         ],
-        [
+        /*[
             'text' => 'change_password',
             'url' => 'admin/settings',
             'icon' => 'fas fa-fw fa-lock',
@@ -375,7 +376,7 @@ return [
                     'url' => '#',
                 ],
             ],
-        ],
+        ],*/
         // Panel Prestamista (admin)
         [
             'header' => 'GESTIÓN',
@@ -426,7 +427,7 @@ return [
             'text' => 'Pagos',
             'url'  => 'pagos',
             'icon' => 'fas fa-money-bill-wave',
-            'can'  => 'prestamista',
+            'can'  => 'cliente',
         ],
          [
             'text' => 'Solicitudes',

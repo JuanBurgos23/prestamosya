@@ -800,8 +800,9 @@
                 break;
             case 'quinsenal':
                 unidadTexto = 'quincena';
-                cuotaCapital = capitalMensual / 2;
-                cuotaInteres = interesMensual / 2;
+                // CORRECCIÓN: cálculo por quincena sin dividir de más
+                cuotaCapital = monto / plazo; // capital por quincena
+                cuotaInteres = monto * (tasaInteresMensual / 100); // interés por quincena
                 cuotaTotal = cuotaCapital + cuotaInteres;
                 totalPagar = cuotaTotal * plazo;
                 break;
@@ -814,11 +815,11 @@
                 break;
             case 'anual':
                 unidadTexto = 'año';
-                // Aquí capital y interés mensual * 12 para anual, pero no multiplicar totalPagar por plazo (ya es años)
-                cuotaCapital = capitalMensual * 12;
-                cuotaInteres = interesMensual * 12;
+                // Interés anual sobre monto total
+                cuotaCapital = monto / plazo;
+                cuotaInteres = monto * (tasaInteresMensual / 100); // ya es anual
                 cuotaTotal = cuotaCapital + cuotaInteres;
-                totalPagar = cuotaTotal * plazo; // plazo en años
+                totalPagar = (cuotaCapital + cuotaInteres) * plazo;
                 break;
             default:
                 unidadTexto = '';
@@ -831,7 +832,7 @@
         $('#resumenMonto').text(monto.toLocaleString('es-ES', {
             minimumFractionDigits: 2
         }) + ' Bs.');
-        $('#resumenInteres').text(tasaInteresMensual.toFixed(2) + ' % mensual');
+        $('#resumenInteres').text(tasaInteresMensual.toFixed(2) + ' % ' + unidadTexto);
         $('#resumenPlazo').text(plazo + ' ' + unidadTexto + (plazo > 1 ? '' : ''));
         $('#resumenCuota').text(cuotaTotal.toFixed(2) + ' Bs./' + unidadTexto);
         $('#resumenCuotaCapital').text('capital = ' + cuotaCapital.toFixed(2) + ' Bs.');
