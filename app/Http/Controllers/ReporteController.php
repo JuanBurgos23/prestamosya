@@ -36,9 +36,25 @@ class ReporteController extends Controller
 
         // Traemos todos y calculamos estado de cartera (vigente/mora) + métricas
         $prestamos = $q->get()->map(function ($p) use ($hoy) {
-            $saldo = $p->saldo_pendiente;       // accessor del modelo
-            $px = $p->proximo_pago;             // accessor del modelo (date|string)
-            $proximo = $px ? \Carbon\Carbon::parse($px) : null;
+            $saldo = $p->saldo_pendiente; // accessor del modelo
+
+            // --- Parseo SEGURO del próximo pago ---
+            $px = $p->proximo_pago; // puede ser "d/m/Y", "d/m/Y (Atrasado)", "Completado", "Último pago", etc.
+            $proximo = null;
+
+            if ($px instanceof \Carbon\CarbonInterface) {
+                $proximo = $px;
+            } elseif (is_string($px)) {
+                // Extrae sólo la parte de fecha si comienza con dd/mm/YYYY
+                if (preg_match('/^\d{2}\/\d{2}\/\d{4}/', $px, $m)) {
+                    try {
+                        $proximo = Carbon::createFromFormat('d/m/Y', $m[0]);
+                    } catch (\Exception $e) {
+                        $proximo = null;
+                    }
+                }
+            }
+            // --- fin parseo seguro ---
 
             $diasAtraso = 0;
             if ($saldo > 0 && $proximo && $hoy->gt($proximo)) {
@@ -90,6 +106,8 @@ class ReporteController extends Controller
             'clienteId'         => $clienteId,
         ]);
     }
+
+
     public function flujoCobros()
     {
         $historico = Pago::selectRaw("DATE_FORMAT(fecha_pago, '%Y-%m') as mes, SUM(monto) as total, COUNT(*) as cantidad")
@@ -116,6 +134,6 @@ class ReporteController extends Controller
             }
         }
 
-        return view('reportes.flujoCobros', compact('historico', 'proyeccion'));
+        return view('reportes.flujo-cobros', compact('historico', 'proyeccion'));
     }
 }

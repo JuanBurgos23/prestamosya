@@ -424,7 +424,6 @@ return [
             ],
         ],
         [
-<<<<<<< HEAD
             'text' => 'Reportes',
             'icon' => 'fas fa-hand-holding-usd',
             'can'  => 'prestamista',
@@ -440,12 +439,6 @@ return [
                     'icon' => 'fas fa-user-plus',
                 ],
             ],
-=======
-            'text' => 'Pagos',
-            'url'  => 'pagos',
-            'icon' => 'fas fa-money-bill-wave',
-            'can'  => 'cliente',
->>>>>>> 6a3751f8f56f0933acd8df54ddcdb3f066dc934b
         ],
         
         [

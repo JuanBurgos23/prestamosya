@@ -4,13 +4,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PagoController;
-<<<<<<< HEAD
-=======
-use App\Http\Controllers\ClienteController;
-use App\Http\Controllers\InteresesController;
->>>>>>> 6a3751f8f56f0933acd8df54ddcdb3f066dc934b
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\InteresesController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\PrestamoController;
 use App\Http\Controllers\PrestamosController;
@@ -55,12 +51,10 @@ Route::post('/pagos', [PagoController::class, 'store'])
     ->name('pagos.store');
 
 Route::get('/prestamos/{id}', [PrestamoController::class, 'show'])->name('prestamos.show');
-<<<<<<< HEAD
 Route::get('/dashboard-prestamista', [HomeController::class, 'indexPrestamista'])->name('prestamista.dashboard');
 Route::get('/reportes/cartera', [ReporteController::class, 'cartera'])->name('reportes.cartera');
 Route::get('/reportes/flujo-cobros', [ReporteController::class, 'flujoCobros'])->name('reportes.flujoCobros');
 Route::get('/reportes/flujo-cobros', [ReporteController::class, 'flujoCobros'])->name('reportes.flujoCobros');
-=======
 
 //tipoPlazo e interes
 Route::get('/intereses', [InteresesController::class, 'index'])->name('intereses.index');
@@ -84,4 +78,3 @@ Route::middleware(['auth'])->group(function () {
     // Obtener intereses por plazo
     Route::get('/intereses/por-plazo/{id}', [InteresesController::class, 'interesesPorPlazo'])->name('intereses.por-plazo');
 });
->>>>>>> 6a3751f8f56f0933acd8df54ddcdb3f066dc934b
