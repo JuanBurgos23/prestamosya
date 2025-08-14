@@ -427,6 +427,11 @@ return [
                     'url'  => 'reportes/cartera',
                     'icon' => 'fas fa-user-plus',
                 ],
+                [
+                    'text' => 'Flojo de cobros',
+                    'url'  => 'reportes/flujo-cobros',
+                    'icon' => 'fas fa-user-plus',
+                ],
             ],
         ],
         

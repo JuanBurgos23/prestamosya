@@ -679,172 +679,257 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.es.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
 <script>
-    $(document).ready(function() {
-        // Inicializar datepicker
-        $('.datepicker').datepicker({
-            format: 'dd/mm/yyyy',
-            language: 'es',
-            autoclose: true,
-            endDate: '0d'
-        });
-
-        // Actualizar resumen cuando cambian los valores
-        $('#montoSolicitado, #plazoValue, [name="tipo_plazo"]').on('change keyup', function() {
-            actualizarResumen();
-        });
-
-        // Inicializar el resumen
-        actualizarResumen();
-
-        // Manejar la subida de archivos
-        $('#documentoIdentidad').change(function() {
-            $('#documentoIdentidadName').text(this.files[0] ? this.files[0].name : 'No se ha seleccionado archivo');
-        });
-        $('#comprobanteDomicilio').change(function() {
-            $('#comprobanteDomicilioName').text(this.files[0] ? this.files[0].name : 'No se ha seleccionado archivo');
-        });
-        $('#comprobanteIngresos').change(function() {
-            $('#comprobanteIngresosName').text(this.files[0] ? this.files[0].name : 'No se ha seleccionado archivo');
-        });
-        $('#otrosDocumentos').change(function() {
-            if (this.files.length > 0) {
-                const names = Array.from(this.files).map(f => f.name).join(', ');
-                $('#otrosDocumentosName').text(names);
-            } else {
-                $('#otrosDocumentosName').text('No se ha seleccionado archivo');
-            }
-        });
-
-        // Inicializar el pad de firma
-        var canvas = document.getElementById('signaturePad');
-        var signaturePad = new SignaturePad(canvas, {
-            backgroundColor: 'rgb(255, 255, 255)',
-            penColor: 'rgb(0, 0, 0)'
-        });
-
-        $('#clearSignature').click(function() {
-            signaturePad.clear();
-        });
-
-        // Guardar la firma cuando se envíe el formulario
-        $('#loanApplicationForm').submit(function() {
-            if (signaturePad.isEmpty()) {
-                alert('Por favor proporcione su firma electrónica');
-                return false;
-            } else {
-                $('#firmaElectronica').val(signaturePad.toDataURL());
-            }
-        });
-    });
-
-    // Función para actualizar el resumen del préstamo
-    function actualizarResumen() {
-        const monto = parseFloat($('#montoSolicitado').val()) || 0;
-        const plazo = $('#plazoValue').val();
-        const tipoPlazo = $('[name="tipo_plazo"]').val();
-
-        // Calcular interés y cuotas (esto es solo un ejemplo)
-        let tasaInteres = 12.5; // Tasa de interés anual base
-        if (monto > 50000) tasaInteres = 10.5;
-        if (monto > 80000) tasaInteres = 9.0;
-
-        const interesMensual = tasaInteres / 12 / 100;
-        const cuota = monto * (interesMensual * Math.pow(1 + interesMensual, plazo)) /
-            (Math.pow(1 + interesMensual, plazo) - 1);
-        const totalPagar = cuota * plazo;
-
-        // Actualizar la UI
-        $('#resumenMonto').text(monto.toLocaleString('es-ES', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }) + ' Bs.');
-        $('#resumenInteres').text(tasaInteres.toFixed(1) + '% anual');
-        $('#resumenPlazo').text(plazo + ' ' + (tipoPlazo === 'mensual' ? 'meses' : tipoPlazo === 'quincenal' ? 'quincenas' : 'semanas'));
-        $('#resumenCuota').text(isNaN(cuota) ? '0.00' : cuota.toFixed(2)) + ' Bs./' + (tipoPlazo === 'mensual' ? 'mes' : tipoPlazo === 'quincenal' ? 'quincena' : 'semana');
-        $('#resumenTotal').text(isNaN(totalPagar) ? '0.00' : totalPagar.toFixed(2)) + ' Bs.';
-    }
-
-    // Función para sincronizar el rango y el valor numérico del plazo
-    function updatePlazoValue(value) {
-        $('#plazoValue').val(value);
-        actualizarResumen();
-    }
-
-    function updatePlazoRange(value) {
-        $('#plazoRange').val(value);
-        actualizarResumen();
-    }
-
-    // Funciones para navegar entre pasos
-    function nextStep(current, next) {
-        // Validar campos requeridos del paso actual
-        let isValid = true;
-        $(`#step${current} [required]`).each(function() {
-            if (!$(this).val()) {
-                $(this).addClass('is-invalid');
-                isValid = false;
-            } else {
-                $(this).removeClass('is-invalid');
-            }
-        });
-
-        if (!isValid) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Campos requeridos',
-                text: 'Por favor complete todos los campos obligatorios antes de continuar',
+    document.addEventListener('DOMContentLoaded', function () {
+        // Helpers de existencia para evitar que el script se rompa si no cargaste librerías
+        const hasjQuery = typeof window.$ === 'function';
+        const hasDatepicker = hasjQuery && typeof $.fn.datepicker === 'function';
+        const hasSwal = typeof window.Swal === 'object';
+        const hasSignaturePadLib = typeof window.SignaturePad === 'function';
+    
+        // ====== DATEPICKER (si está disponible) ======
+        if (hasDatepicker) {
+            $('.datepicker').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'es',
+                autoclose: true,
+                endDate: '0d'
             });
-            return;
         }
-
-        // Si es el último paso, actualizar la confirmación
-        if (next === 4) {
-            updateConfirmation();
+    
+        // ====== BINDINGS PARA CALCULAR RESUMEN ======
+        function bindResumenListeners() {
+            const monto = document.getElementById('montoSolicitado');
+            const plazoValue = document.getElementById('plazoValue');
+            const tipoPlazo = document.querySelector('[name="tipo_plazo"]');
+    
+            if (monto) monto.addEventListener('input', actualizarResumen);
+            if (plazoValue) {
+                plazoValue.addEventListener('input', actualizarResumen);
+                plazoValue.addEventListener('change', actualizarResumen);
+            }
+            if (tipoPlazo) tipoPlazo.addEventListener('change', actualizarResumen);
+    
+            // slider ↔ number
+            const plazoRange = document.getElementById('plazoRange');
+            if (plazoRange && plazoValue) {
+                plazoRange.addEventListener('input', function () {
+                    plazoValue.value = this.value;
+                    actualizarResumen();
+                });
+                plazoValue.addEventListener('input', function () {
+                    plazoRange.value = this.value;
+                    actualizarResumen();
+                });
+            }
         }
-
-        // Cambiar de paso
-        $(`#step${current}`).hide();
-        $(`#step${next}`).show();
-
-        // Actualizar indicador de pasos
-        $(`.step`).removeClass('active completed');
-        $(`.step`).each(function(index) {
-            if (index + 1 < next) {
-                $(this).addClass('completed');
-            } else if (index + 1 === next) {
-                $(this).addClass('active');
+    
+        // ====== SUBIDA DE ARCHIVOS (no rompe si no existen) ======
+        function bindFileLabels() {
+            const map = [
+                ['documentoIdentidad', 'documentoIdentidadName'],
+                ['comprobanteDomicilio', 'comprobanteDomicilioName'],
+                ['comprobanteIngresos', 'comprobanteIngresosName'],
+            ];
+            map.forEach(([inputId, labelId]) => {
+                const input = document.getElementById(inputId);
+                const label = document.getElementById(labelId);
+                if (input && label) {
+                    input.addEventListener('change', function () {
+                        label.textContent = this.files[0] ? this.files[0].name : 'No se ha seleccionado archivo';
+                    });
+                }
+            });
+    
+            const otros = document.getElementById('otrosDocumentos');
+            const otrosName = document.getElementById('otrosDocumentosName');
+            if (otros && otrosName) {
+                otros.addEventListener('change', function () {
+                    if (this.files.length > 0) {
+                        otrosName.textContent = Array.from(this.files).map(f => f.name).join(', ');
+                    } else {
+                        otrosName.textContent = 'No se ha seleccionado archivo';
+                    }
+                });
             }
-        });
-    }
-
-    function prevStep(current, prev) {
-        $(`#step${current}`).hide();
-        $(`#step${prev}`).show();
-
-        // Actualizar indicador de pasos
-        $(`.step`).removeClass('active completed');
-        $(`.step`).each(function(index) {
-            if (index + 1 < prev) {
-                $(this).addClass('completed');
-            } else if (index + 1 === prev) {
-                $(this).addClass('active');
+        }
+    
+        // ====== SIGNATURE PAD (solo si existe canvas y librería cargada) ======
+        let signaturePad = null;
+        (function initSignature() {
+            const canvas = document.getElementById('signaturePad');
+            if (canvas && hasSignaturePadLib) {
+                signaturePad = new SignaturePad(canvas, {
+                    backgroundColor: 'rgb(255,255,255)',
+                    penColor: 'rgb(0,0,0)'
+                });
+                const clearBtn = document.getElementById('clearSignature');
+                if (clearBtn) clearBtn.addEventListener('click', () => signaturePad.clear());
             }
-        });
-    }
-
-    // Actualizar la sección de confirmación con los datos ingresados
-    function updateConfirmation() {
-        $('#confirmTipoPrestamo').text($('[name="tipo_prestamo"] option:selected').text());
-        $('#confirmMonto').text($('#montoSolicitado').val() ? parseFloat($('#montoSolicitado').val()).toLocaleString('es-ES', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }) + ' Bs.' : '-');
-        $('#confirmPlazo').text($('#plazoValue').val() + ' ' + ($('[name="tipo_plazo"] option:selected').val() === 'mensual' ? 'meses' : $('[name="tipo_plazo"] option:selected').val() === 'quincenal' ? 'quincenas' : 'semanas'));
-        $('#confirmCuota').text($('#resumenCuota').text());
-        $('#confirmNombre').text($('[name="nombres"]').val() + ' ' + $('[name="apellidos"]').val());
-        $('#confirmDocumento').text($('[name="tipo_documento"] option:selected').text() + ': ' + $('[name="numero_documento"]').val());
-        $('#confirmTelefono').text($('[name="telefono"]').val());
-        $('#confirmEmail').text($('[name="email"]').val());
-    }
-</script>
+        })();
+    
+        // ====== SUBMIT FORM: valida firma solo si hay canvas y se requiere ======
+        (function bindSubmit() {
+            const form = document.getElementById('loanApplicationForm');
+            if (!form) return;
+            form.addEventListener('submit', function (e) {
+                const firmaInput = document.getElementById('firmaElectronica');
+                const requiereFirma = !!document.getElementById('signaturePad'); // si hay canvas, pedimos firma
+                if (requiereFirma && signaturePad && signaturePad.isEmpty()) {
+                    e.preventDefault();
+                    if (hasSwal) {
+                        Swal.fire({ icon: 'error', title: 'Firma requerida', text: 'Por favor proporcione su firma electrónica' });
+                    } else {
+                        alert('Por favor proporcione su firma electrónica');
+                    }
+                    return false;
+                }
+                if (firmaInput && signaturePad && !signaturePad.isEmpty()) {
+                    firmaInput.value = signaturePad.toDataURL();
+                }
+            });
+        })();
+    
+        // ====== NAVEGACIÓN DE PASOS (usa Swal solo si está) ======
+        window.nextStep = function (current, next) {
+            // Valida campos requeridos del paso actual
+            const step = document.getElementById(`step${current}`);
+            if (step) {
+                let valid = true;
+                step.querySelectorAll('[required]').forEach(el => {
+                    if (!el.value) {
+                        el.classList.add('is-invalid');
+                        valid = false;
+                    } else {
+                        el.classList.remove('is-invalid');
+                    }
+                });
+                if (!valid) {
+                    if (hasSwal) {
+                        Swal.fire({ icon: 'error', title: 'Campos requeridos', text: 'Complete los campos obligatorios antes de continuar' });
+                    } else {
+                        alert('Complete los campos obligatorios antes de continuar');
+                    }
+                    return;
+                }
+            }
+    
+            if (next === 4) updateConfirmation();
+    
+            const cur = document.getElementById(`step${current}`);
+            const nxt = document.getElementById(`step${next}`);
+            if (cur && nxt) {
+                cur.style.display = 'none';
+                nxt.style.display = '';
+            }
+    
+            document.querySelectorAll('.step').forEach((el, idx) => {
+                el.classList.remove('active', 'completed');
+                if (idx + 1 < next) el.classList.add('completed');
+                if (idx + 1 === next) el.classList.add('active');
+            });
+        };
+    
+        window.prevStep = function (current, prev) {
+            const cur = document.getElementById(`step${current}`);
+            const prv = document.getElementById(`step${prev}`);
+            if (cur && prv) {
+                cur.style.display = 'none';
+                prv.style.display = '';
+            }
+            document.querySelectorAll('.step').forEach((el, idx) => {
+                el.classList.remove('active', 'completed');
+                if (idx + 1 < prev) el.classList.add('completed');
+                if (idx + 1 === prev) el.classList.add('active');
+            });
+        };
+    
+        // ====== CÁLCULO DEL RESUMEN (ARREGLADO) ======
+        function actualizarResumen() {
+            const monto = parseFloat((document.getElementById('montoSolicitado')?.value || '0').replace(',', '.')) || 0;
+            const plazo = parseInt(document.getElementById('plazoValue')?.value || '0', 10) || 0;
+            const tipoPlazo = document.querySelector('[name="tipo_plazo"]')?.value || 'mensual';
+    
+            // Tasa ejemplo (ajústala si quieres)
+            let tasaAnual = 12.5;
+            if (monto > 80000) tasaAnual = 9.0;
+            else if (monto > 50000) tasaAnual = 10.5;
+    
+            // Solo calculamos con esquema mensual. Si es quincenal/semanal, puedes convertir a "meses equivalentes".
+            const interesMensual = (tasaAnual / 12) / 100;
+    
+            let cuota = 0, totalPagar = 0;
+            if (monto > 0 && plazo > 0 && interesMensual > 0) {
+                // Fórmula de amortización francesa
+                const factor = Math.pow(1 + interesMensual, plazo);
+                cuota = monto * (interesMensual * factor) / (factor - 1);
+                totalPagar = cuota * plazo;
+            } else if (monto > 0 && plazo > 0) {
+                // sin interés (raro, pero evitamos NaN)
+                cuota = monto / plazo;
+                totalPagar = monto;
+            }
+    
+            // Texto de periodo
+            const lblPeriodo = (tipoPlazo === 'mensual') ? 'mes' : (tipoPlazo === 'quincenal') ? 'quincena' : 'semana';
+            const lblPlazo = (tipoPlazo === 'mensual') ? 'meses' : (tipoPlazo === 'quincenal') ? 'quincenas' : 'semanas';
+    
+            // Pintar UI (ojo: construir string y pasarlo a .textContent)
+            const resumenMonto = document.getElementById('resumenMonto');
+            const resumenInteres = document.getElementById('resumenInteres');
+            const resumenPlazo = document.getElementById('resumenPlazo');
+            const resumenCuota = document.getElementById('resumenCuota');
+            const resumenTotal = document.getElementById('resumenTotal');
+    
+            if (resumenMonto) resumenMonto.textContent = monto.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Bs.';
+            if (resumenInteres) resumenInteres.textContent = tasaAnual.toFixed(1) + '% anual';
+            if (resumenPlazo) resumenPlazo.textContent = `${plazo} ${lblPlazo}`;
+            if (resumenCuota) resumenCuota.textContent = (isNaN(cuota) ? '0,00' : cuota.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })) + ` Bs./${lblPeriodo}`;
+            if (resumenTotal) resumenTotal.textContent = (isNaN(totalPagar) ? '0,00' : totalPagar.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })) + ' Bs.';
+        }
+    
+        // ====== CONFIRMACIÓN (usa lo ya calculado) ======
+        function updateConfirmation() {
+            const tipoPrestamoText = document.querySelector('[name="tipo_prestamo"] option:checked')?.textContent || '-';
+            const montoText = document.getElementById('resumenMonto')?.textContent || '-';
+            const plazoText = document.getElementById('resumenPlazo')?.textContent || '-';
+            const cuotaText = document.getElementById('resumenCuota')?.textContent || '-';
+    
+            const nombre = (document.querySelector('[name="nombres"]')?.value || '') + ' ' + (document.querySelector('[name="apellidos"]')?.value || '');
+            const docTipo = document.querySelector('[name="tipo_documento"] option:checked')?.textContent || '';
+            const docNum = document.querySelector('[name="numero_documento"]')?.value || '';
+            const tel = document.querySelector('[name="telefono"]')?.value || '';
+            const email = document.querySelector('[name="email"]')?.value || '';
+    
+            const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+            setText('confirmTipoPrestamo', tipoPrestamoText);
+            setText('confirmMonto', montoText);
+            setText('confirmPlazo', plazoText);
+            setText('confirmCuota', cuotaText);
+            setText('confirmNombre', nombre.trim() || '-');
+            setText('confirmDocumento', (docTipo && docNum) ? `${docTipo}: ${docNum}` : '-');
+            setText('confirmTelefono', tel || '-');
+            setText('confirmEmail', email || '-');
+        }
+    
+        // Exponer funciones globales si las usas en HTML
+        window.actualizarResumen = actualizarResumen;
+        window.updatePlazoValue = function (value) {
+            const plazoValue = document.getElementById('plazoValue');
+            if (plazoValue) plazoValue.value = value;
+            actualizarResumen();
+        };
+        window.updatePlazoRange = function (value) {
+            const plazoRange = document.getElementById('plazoRange');
+            if (plazoRange) plazoRange.value = value;
+            actualizarResumen();
+        };
+        window.updateConfirmation = updateConfirmation;
+    
+        // Inicializaciones
+        bindResumenListeners();
+        bindFileLabels();
+        actualizarResumen(); // primer cálculo
+    });
+    </script>
+    
 @endsection

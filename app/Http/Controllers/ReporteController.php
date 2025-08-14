@@ -1,8 +1,10 @@
 <?php
+
 namespace App\Http\Controllers;
 
-use App\Models\Prestamo;
 use Carbon\Carbon;
+use App\Models\Pago;
+use App\Models\Prestamo;
 use Illuminate\Http\Request;
 
 class ReporteController extends Controller
@@ -87,5 +89,33 @@ class ReporteController extends Controller
             'hasta'             => $hasta,
             'clienteId'         => $clienteId,
         ]);
+    }
+    public function flujoCobros()
+    {
+        $historico = Pago::selectRaw("DATE_FORMAT(fecha_pago, '%Y-%m') as mes, SUM(monto) as total, COUNT(*) as cantidad")
+            ->whereHas('prestamo', fn($q) => $q->where('id_prestamista', auth()->id()))
+            ->where('fecha_pago', '>=', now()->subMonths(12))
+            ->groupBy('mes')
+            ->orderBy('mes')
+            ->get();
+
+        $proyeccion = [];
+        $prestamosActivos = Prestamo::where('id_prestamista', auth()->id())
+            ->where('estado', 'activo')
+            ->get();
+
+        foreach ($prestamosActivos as $prestamo) {
+            $fecha = now();
+            while ($fecha <= $prestamo->fecha_vencimiento && $fecha <= now()->addMonths(6)) {
+                $mes = $fecha->format('Y-m');
+                if (!isset($proyeccion[$mes])) {
+                    $proyeccion[$mes] = 0;
+                }
+                $proyeccion[$mes] += $prestamo->monto_cuota;
+                $fecha->addMonth();
+            }
+        }
+
+        return view('reportes.flujoCobros', compact('historico', 'proyeccion'));
     }
 }

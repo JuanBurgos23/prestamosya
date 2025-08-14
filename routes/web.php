@@ -52,3 +52,5 @@ Route::post('/pagos', [PagoController::class, 'store'])
 Route::get('/prestamos/{id}', [PrestamoController::class, 'show'])->name('prestamos.show');
 Route::get('/dashboard-prestamista', [HomeController::class, 'indexPrestamista'])->name('prestamista.dashboard');
 Route::get('/reportes/cartera', [ReporteController::class, 'cartera'])->name('reportes.cartera');
+Route::get('/reportes/flujo-cobros', [ReporteController::class, 'flujoCobros'])->name('reportes.flujoCobros');
+Route::get('/reportes/flujo-cobros', [ReporteController::class, 'flujoCobros'])->name('reportes.flujoCobros');
