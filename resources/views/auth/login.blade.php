@@ -469,8 +469,10 @@
 
                 <div class="form-options">
                     <div class="remember-me">
-                        <input type="checkbox" id="remember">
-                        <label for="remember">Recordar sesión</label>
+                        <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
+                        <label class="form-check-label" for="remember">
+                            {{ __('Recordarme') }}
+                        </label>
                     </div>
                     <a href="{{ route('password.request') }}" class="forgot-password">¿Olvidó su contraseña?</a>
                 </div>
